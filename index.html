@@ -2,36 +2,32 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Mural de Agendamentos Interativo (CRUD)</title>
+<title>Mural de Agendamentos Interativo</title>
 <style>
-body { font-family:'Segoe UI', Tahoma, sans-serif; background:#f0f4f8; margin:0; padding:20px; }
-h1{text-align:center; color:#333; margin-bottom:15px;}
-#painel-resumo{max-width:900px;margin:0 auto 20px auto;padding:15px;background:#fff;border-radius:12px;
-display:flex;justify-content:space-around;flex-wrap:wrap;box-shadow:0 4px 12px rgba(0,0,0,0.1); font-weight:bold;}
-form{max-width:900px;margin:0 auto 20px auto;background:#fff;padding:20px;border-radius:12px;
-display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+body{font-family:'Segoe UI', Tahoma, sans-serif;background:#f0f4f8;margin:0;padding:20px;}
+h1{text-align:center;color:#333;margin-bottom:15px;}
+#painel-resumo{max-width:900px;margin:0 auto 20px auto;padding:15px;background:#fff;border-radius:12px;display:flex;justify-content:space-around;flex-wrap:wrap;box-shadow:0 4px 12px rgba(0,0,0,0.1);font-weight:bold;}
+form{max-width:900px;margin:0 auto 20px auto;background:#fff;padding:20px;border-radius:12px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
 input,select,button{padding:10px;border-radius:8px;border:1px solid #ccc;flex:1 1 180px;}
 button{background:#007bff;color:white;border:none;cursor:pointer;transition:0.3s;}
-button:hover{background:#0056b3; transform:translateY(-2px);}
+button:hover{background:#0056b3;transform:translateY(-2px);}
 .salas{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;max-width:1000px;margin:0 auto;}
-.sala-card{flex:1 1 280px;border-radius:15px;padding:20px;color:#fff;
-box-shadow:0 6px 20px rgba(0,0,0,0.15); transition:transform 0.3s, box-shadow 0.3s;}
-.sala-card:hover{transform:translateY(-5px); box-shadow:0 10px 25px rgba(0,0,0,0.2);}
+.sala-card{flex:1 1 280px;border-radius:15px;padding:20px;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.15);transition:transform 0.3s, box-shadow 0.3s;}
+.sala-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,0.2);}
 .sala-1{background:linear-gradient(135deg,#4facfe,#00f2fe);}
 .sala-2{background:linear-gradient(135deg,#43e97b,#38f9d7);}
 .sala-3{background:linear-gradient(135deg,#f7971e,#ffd200);}
-.agendamento{padding:12px;border-radius:10px;margin-top:12px;position:relative;font-size:1rem;
-background:rgba(255,255,255,0.2);box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:transform 0.2s, background 0.5s;}
+.agendamento{padding:12px;border-radius:10px;margin-top:12px;position:relative;font-size:1rem;background:rgba(255,255,255,0.2);box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:transform 0.2s, background 0.5s;}
 .agendamento:hover{transform:scale(1.03);}
-.agendamento button{position:absolute;top:10px;right:10px;background:#dc3545;color:white;
-border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.8rem;transition:0.3s;margin-left:5px;}
+.agendamento button{position:absolute;top:10px;right:10px;background:#dc3545;color:white;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.8rem;transition:0.3s;margin-left:5px;}
 .agendamento button:hover{background:#a71d2a;}
 #mensagem{text-align:center;font-weight:bold;margin-bottom:15px;min-height:24px;}
 @media(max-width:700px){form input,form select,form button{flex:1 1 100%;}}
 </style>
 </head>
 <body>
-<h1>Mural de Agendamentos Interativo (CRUD)</h1>
+
+<h1>Mural de Agendamentos Interativo</h1>
 
 <div id="painel-resumo">
 <div>Total Agendamentos: <span id="total-agendamentos">0</span></div>
@@ -167,7 +163,6 @@ function editarAgendamento(id){
     }).catch(err=>{ console.error(err); mostrarMensagem("Erro na conexão","red"); });
 }
 
-// Inicializa
 carregarAgendamentos();
 </script>
 </body>
