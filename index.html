@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mural de Agendamento Offline</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        #painel-resumo {
+            max-width: 1100px;
+            margin: 0 auto 30px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            font-weight: bold;
+        }
+
+        #painel-resumo div {
+            margin: 10px 0;
+        }
+
+        form {
+            max-width: 1100px;
+            margin: 0 auto 25px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        input,
+        select,
+        button {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            flex: 1 1 200px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        #mensagem {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            min-height: 24px;
+            color: green;
+        }
+
+        .filtros {
+            max-width: 1100px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .salas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .sala-card {
+            flex: 1 1 360px;
+            border-radius: 20px;
+            padding: 20px;
+            color: #fff;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.4s, box-shadow 0.4s;
+        }
+
+        .sala-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .sala-card h2 {
+            text-align: center;
+            margin-top: 0;
+            font-size: 1.6rem;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .sala-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .agendamento {
+            padding: 15px 18px;
+            border-radius: 15px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.4s, background 0.4s, opacity 0.5s;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .agendamento.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .agendamento strong {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.05rem;
+        }
+
+        .agendamento .datas {
+            font-size: .87rem;
+            opacity: .85;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 5px;
+        }
+
+        .agendamento button {
+            position: absolute;
+            top: 10px;
+            border: none;
+            border-radius: 7px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: .85rem;
+            transition: .3s;
+        }
+
+        .editar-btn {
+            right: 85px;
+            background: #ffc107;
+            color: #000;
+        }
+
+        .editar-btn:hover {
+            background: #e0a800;
+        }
+
+        .excluir-btn {
+            right: 10px;
+            background: #dc3545;
+            color: white;
+        }
+
+        .excluir-btn:hover {
+            background: #a71d2a;
+        }
+
+        .valido {
+            background: rgba(76, 175, 80, 0.6);
+            transition: background 0.5s;
+        }
+
+        .perto-expirar {
+            background: rgba(255, 235, 59, 0.6);
+            border-left: 4px solid #ffc107;
+            animation: pulsar 1.5s infinite;
+            transition: background 0.5s;
+        }
+
+        .alerta {
+            background: rgba(244, 67, 54, 0.6);
+            border-left: 4px solid #dc3545;
+            animation: piscar 1s infinite alternate;
+            transition: background 0.5s;
+        }
+
+        .conflito {
+            background: rgba(155, 0, 155, 0.5);
+            border-left: 4px solid #9c27b0;
+            transition: background 0.5s;
+        }
+
+        .progresso-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progresso-bar {
+            height: 100%;
+            width: 0%;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        .sala-1 {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .sala-2 {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .sala-3 {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+        }
+
+        @keyframes piscar {
+            0% {
+                background-color: rgba(244, 67, 54, 0.6);
+            }
+
+            50% {
+                background-color: rgba(244, 67, 54, 0.85);
+            }
+
+            100% {
+                background-color: rgba(244, 67, 54, 0.6);
+            }
+        }
+
+        @keyframes pulsar {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @media(max-width:750px) {
+            .sala-card {
+                flex: 1 1 100%
+            }
+
+            form input,
+            form select,
+            form button {
+                flex: 1 1 100%
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Mural de Agendamento Offline</h1>
+
+    <div id="painel-resumo">
+        <div>Total Agendamentos: <span id="total-agendamentos">0</span></div>
+        <div>Salas Ocupadas: <span id="salas-ocupadas">0</span></div>
+        <div>Expirando &lt;1h: <span id="expirando-1h">0</span></div>
+        <div>Próximas 24h: <span id="proximas-24h">0</span></div>
+    </div>
+
+    <form id="form-agendamento">
+        <select id="sala">
+            <option value="Sala 1">Sala 1</option>
+            <option value="Sala 2">Sala 2</option>
+            <option value="Sala 3">Sala 3</option>
+        </select>
+        <input type="text" id="professor" placeholder="Nome do Professor" required>
+        <input type="datetime-local" id="inicio" required>
+        <input type="datetime-local" id="fim" required>
+        <button type="submit">Agendar</button>
+    </form>
+
+    <div class="filtros">
+        <input type="text" id="filtro-professor" placeholder="Pesquisar por professor...">
+        <select id="filtro-sala">
+            <option value="Todas">Todas as Salas</option>
+            <option value="Sala 1">Sala 1</option>
+            <option value="Sala 2">Sala 2</option>
+            <option value="Sala 3">Sala 3</option>
+        </select>
+    </div>
+
+    <div id="mensagem"></div>
+    <div class="salas" id="lista-salas"></div>
+
+    <script>
+        let agendamentos = [], idEditando = null;
+
+        function mostrarMensagem(msg, cor = "green") { const m = document.getElementById('mensagem'); m.textContent = msg; m.style.color = cor; setTimeout(() => m.textContent = '', 3000); }
+        function formatarInputDateTime(date) { const dt = new Date(date); const pad = n => n.toString().padStart(2, '0'); return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`; }
+
+        function atualizarResumo() {
+            const agora = new Date();
+            let total = 0, exp1h = 0, prox24h = 0;
+            const salasOcupadas = new Set();
+            agendamentos.forEach(ag => {
+                if (new Date(ag.fim) < agora) return;
+                total++;
+                const diff = (new Date(ag.fim) - agora) / 3600000;
+                if (diff < 1) exp1h++;
+                if (diff < 24) prox24h++;
+                salasOcupadas.add(ag.sala);
+            });
+            document.getElementById('total-agendamentos').textContent = total;
+            document.getElementById('salas-ocupadas').textContent = salasOcupadas.size;
+            document.getElementById('expirando-1h').textContent = exp1h;
+            document.getElementById('proximas-24h').textContent = prox24h;
+        }
+
+        function renderizar() {
+            const lista = document.getElementById('lista-salas'); lista.innerHTML = '';
+            const pesquisa = document.getElementById('filtro-professor').value.toLowerCase();
+            const selSala = document.getElementById('filtro-sala').value;
+            const agora = new Date();
+
+            const salas = {};
+            agendamentos.forEach(ag => {
+                if (pesquisa && !ag.professor.toLowerCase().includes(pesquisa)) return;
+                if (selSala !== "Todas" && ag.sala !== selSala) return;
+                if (!salas[ag.sala]) salas[ag.sala] = [];
+                salas[ag.sala].push(ag);
+            });
+
+            for (const sala in salas) {
+                const card = document.createElement('div'); card.className = 'sala-card';
+                switch (sala) { case "Sala 1": card.classList.add('sala-1'); break; case "Sala 2": card.classList.add('sala-2'); break; case "Sala 3": card.classList.add('sala-3'); break; }
+                card.innerHTML = `<h2>${sala}</h2>`;
+                const timeline = document.createElement('div'); timeline.className = 'sala-timeline';
+                salas[sala].forEach(ag => {
+                    const item = document.createElement('div'); item.className = 'agendamento show';
+                    const diff = (new Date(ag.fim) - agora) / 3600000;
+                    if (diff < 1) item.classList.add('alerta');
+                    else if (diff < 24) item.classList.add('perto-expirar');
+                    else item.classList.add('valido');
+                    item.innerHTML = `
+<strong>👤 ${ag.professor}</strong>
+<span class="datas">⏰ ${new Date(ag.inicio).toLocaleString('pt-BR')} - ${new Date(ag.fim).toLocaleString('pt-BR')}</span>
+<div class="progresso-container"><div class="progresso-bar" style="width:${Math.min(100, Math.max(0, ((agora - new Date(ag.inicio)) / (new Date(ag.fim) - new Date(ag.inicio))) * 100))}%"></div></div>
+<button class="editar-btn" onclick="editar('${ag.id}')">Alterar</button>
+<button class="excluir-btn" onclick="excluir('${ag.id}')">Excluir</button>
+`;
+                    timeline.appendChild(item);
+                });
+                card.appendChild(timeline); lista.appendChild(card);
+            }
+            atualizarResumo();
+        }
+
+        document.getElementById('form-agendamento').addEventListener('submit', e => {
+            e.preventDefault();
+            const sala = document.getElementById('sala').value;
+            const professor = document.getElementById('professor').value;
+            const inicio = document.getElementById('inicio').value;
+            const fim = document.getElementById('fim').value;
+            if (new Date(fim) <= new Date(inicio)) { alert("Data final deve ser depois da inicial!"); return; }
+            if (idEditando) {
+                const idx = agendamentos.findIndex(a => a.id === idEditando);
+                agendamentos[idx] = { id: idEditando, sala, professor, inicio, fim };
+                mostrarMensagem("Agendamento atualizado!");
+                idEditando = null; document.querySelector('#form-agendamento button').textContent = "Agendar";
+            } else {
+                agendamentos.push({ id: Date.now().toString(), sala, professor, inicio, fim });
+                mostrarMensagem("Agendamento realizado!");
+            }
+            document.getElementById('form-agendamento').reset();
+            renderizar();
+        });
+
+        function excluir(id) { if (confirm("Deseja excluir este agendamento?")) { agendamentos = agendamentos.filter(a => a.id !== id); mostrarMensagem("Agendamento excluído!", "red"); renderizar(); } }
+        function editar(id) {
+            const ag = agendamentos.find(a => a.id === id); if (!ag) return;
+            document.getElementById('sala').value = ag.sala;
+            document.getElementById('professor').value = ag.professor;
+            document.getElementById('inicio').value = formatarInputDateTime(ag.inicio);
+            document.getElementById('fim').value = formatarInputDateTime(ag.fim);
+            idEditando = id; document.querySelector('#form-agendamento button').textContent = "Salvar Alteração";
+            document.getElementById('professor').focus();
+        }
+
+        renderizar();
+    </script>
+</body>
+
+</html>
