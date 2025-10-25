@@ -1,282 +1,173 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Mural de Agendamentos Interativo</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #f0f4f8;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        #painel-resumo {
-            max-width: 900px;
-            margin: 0 auto 20px auto;
-            padding: 15px;
-            background: #fff;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            font-weight: bold;
-        }
-
-        form {
-            max-width: 900px;
-            margin: 0 auto 20px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        input,
-        select,
-        button {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            flex: 1 1 180px;
-        }
-
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-        }
-
-        .salas {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .sala-card {
-            flex: 1 1 280px;
-            border-radius: 15px;
-            padding: 20px;
-            color: #fff;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .sala-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .sala-1 {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-        }
-
-        .sala-2 {
-            background: linear-gradient(135deg, #43e97b, #38f9d7);
-        }
-
-        .sala-3 {
-            background: linear-gradient(135deg, #f7971e, #ffd200);
-        }
-
-        .agendamento {
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 12px;
-            position: relative;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, background 0.5s;
-        }
-
-        .agendamento:hover {
-            transform: scale(1.03);
-        }
-
-        .agendamento button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 4px 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: 0.3s;
-        }
-
-        .agendamento button:hover {
-            background: #a71d2a;
-        }
-
-        #mensagem {
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 15px;
-            min-height: 24px;
-        }
-
-        @media(max-width:700px) {
-
-            form input,
-            form select,
-            form button {
-                flex: 1 1 100%;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Mural de Agendamentos Interativo</title>
+<style>
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; margin: 0; padding: 20px; }
+h1 { text-align: center; color: #333; margin-bottom: 15px; }
+#painel-resumo { max-width: 900px; margin: 0 auto 20px auto; padding: 15px; background: #fff; border-radius: 12px;
+display: flex; justify-content: space-around; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: bold; }
+form { max-width: 900px; margin: 0 auto 20px auto; background: #fff; padding: 20px; border-radius: 12px;
+display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+input, select, button { padding: 10px; border-radius: 8px; border: 1px solid #ccc; flex: 1 1 180px; }
+button { background: #007bff; color: white; border: none; cursor: pointer; transition: 0.3s; }
+button:hover { background: #0056b3; transform: translateY(-2px); }
+.salas { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; max-width: 1000px; margin: 0 auto; }
+.sala-card { flex: 1 1 280px; border-radius: 15px; padding: 20px; color: #fff;
+box-shadow: 0 6px 20px rgba(0,0,0,0.15); transition: transform 0.3s, box-shadow 0.3s; }
+.sala-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.sala-1 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.sala-2 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.sala-3 { background: linear-gradient(135deg, #f7971e, #ffd200); }
+.agendamento { padding: 12px; border-radius: 10px; margin-top: 12px; position: relative; font-size: 1rem;
+background: rgba(255,255,255,0.2); box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: transform 0.2s, background 0.5s; }
+.agendamento:hover { transform: scale(1.03); }
+.agendamento button { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white;
+border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; }
+.agendamento button:hover { background: #a71d2a; }
+#mensagem { text-align: center; font-weight: bold; margin-bottom: 15px; min-height: 24px; }
+@media(max-width:700px) { form input, form select, form button { flex: 1 1 100%; } }
+</style>
 </head>
-
 <body>
-    <h1>Mural de Agendamentos Interativo</h1>
+<h1>Mural de Agendamentos Interativo</h1>
 
-    <div id="painel-resumo">
-        <div>Total Agendamentos: <span id="total-agendamentos">0</span></div>
-        <div>Salas Ocupadas: <span id="salas-ocupadas">0</span></div>
-        <div>Próximas 24h: <span id="proximas-24h">0</span></div>
-    </div>
+<div id="painel-resumo">
+<div>Total Agendamentos: <span id="total-agendamentos">0</span></div>
+<div>Salas Ocupadas: <span id="salas-ocupadas">0</span></div>
+<div>Próximas 24h: <span id="proximas-24h">0</span></div>
+</div>
 
-    <form id="form-agendamento">
-        <select id="sala">
-            <option value="Sala 1">Sala 1</option>
-            <option value="Sala 2">Sala 2</option>
-            <option value="Sala 3">Sala 3</option>
-        </select>
-        <input type="text" id="professor" placeholder="Nome do Professor" required>
-        <input type="datetime-local" id="inicio" required>
-        <input type="datetime-local" id="fim" required>
-        <button type="submit">Adicionar</button>
-    </form>
+<form id="form-agendamento">
+<select id="sala">
+<option value="Sala 1">Sala 1</option>
+<option value="Sala 2">Sala 2</option>
+<option value="Sala 3">Sala 3</option>
+</select>
+<input type="text" id="professor" placeholder="Nome do Professor" required>
+<input type="datetime-local" id="inicio" required>
+<input type="datetime-local" id="fim" required>
+<button type="submit">Adicionar</button>
+</form>
 
-    <div id="mensagem"></div>
+<div id="mensagem"></div>
+<div class="salas" id="lista-salas"></div>
 
-    <div class="salas" id="lista-salas"></div>
+<script>
+// LINK DO SEU APPS SCRIPT DEPLOYADO
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1ykb0OsrVrpAabHtCdFyCDWUbUazq3BXW0ky8iOZudopCg9lX3IdrLlwqg5qPK5uzpQ/exec";
 
-    <script>
-        // Link CSV do Google Sheets (substitua pelo seu link CSV)
-        const LINK_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqn76mct4uYBbdcaZ_U4p3ch4jp_OCvRw_ezxgrYG52ec1DEaq2uoUfVzt3QW02UUGZLoCfvnSIxXB/pub?output=csv";
+// Se quiser puxar os dados diretamente da planilha via CSV, coloque o link CSV público aqui:
+const LINK_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqn76mct4uYBbdcaZ_U4p3ch4jp_OCvRw_ezxgrYG52ec1DEaq2uoUfVzt3QW02UUGZLoCfvnSIxXB/pub?output=csv";
 
-        // Variável para armazenar agendamentos
-        let agendamentos = [];
+let agendamentos = [];
 
-        // Funções utilitárias
-        function mostrarMensagem(texto, cor = "green") {
-            const msg = document.getElementById('mensagem');
-            msg.textContent = texto;
-            msg.style.color = cor;
-            setTimeout(() => { msg.textContent = ''; }, 3000);
-        }
+function mostrarMensagem(texto, cor="green"){
+    const msg = document.getElementById('mensagem');
+    msg.textContent = texto;
+    msg.style.color = cor;
+    setTimeout(()=>{ msg.textContent = ''; },3000);
+}
 
-        // Carrega CSV
-        async function carregarAgendamentos() {
-            try {
-                const response = await fetch(LINK_CSV);
-                const csvText = await response.text();
-                const linhas = csvText.split('\n').slice(1).filter(l => l.trim() !== "");
-                agendamentos = linhas.map((l, i) => {
-                    const [sala, professor, inicio, fim] = l.split(',');
-                    return { id: i, sala, professor, inicio, fim };
-                });
-                renderizarAgendamentos();
-            } catch (err) {
-                console.error("Erro ao carregar agendamentos:", err);
-            }
-        }
+// Carregar dados da planilha CSV (somente leitura)
+async function carregarAgendamentos(){
+    try{
+        const res = await fetch(LINK_CSV);
+        const text = await res.text();
+        const linhas = text.split('\n').slice(1).filter(l=>l.trim()!=="");
+        agendamentos = linhas.map((l,i)=>{
+            const [sala, professor, inicio, fim] = l.split(',');
+            return {id:i, sala, professor, inicio, fim};
+        });
+        renderizarAgendamentos();
+    }catch(err){
+        console.error("Erro ao carregar agendamentos:",err);
+    }
+}
 
-        // Renderiza cards
-        function renderizarAgendamentos() {
-            const lista = document.getElementById('lista-salas');
-            const salasObj = {};
-            let total = 0, proximas24h = 0, salasOcupadasSet = new Set();
-            const agora = new Date();
+function renderizarAgendamentos(){
+    const lista = document.getElementById('lista-salas');
+    const salasObj = {};
+    let total=0, proximas24h=0, salasOcupadasSet=new Set();
+    const agora = new Date();
 
-            agendamentos.forEach(ag => {
-                if (!salasObj[ag.sala]) salasObj[ag.sala] = [];
-                salasObj[ag.sala].push(ag);
+    agendamentos.forEach((ag,i)=>{
+        ag.id=i;
+        if(!salasObj[ag.sala]) salasObj[ag.sala]=[];
+        salasObj[ag.sala].push(ag);
 
-                const diffHoras = (new Date(ag.fim) - agora) / (1000 * 60 * 60);
-                if (diffHoras > 0) total++;
-                if (diffHoras < 24 && diffHoras > 0) proximas24h++;
-                if (new Date(ag.fim) > agora) salasOcupadasSet.add(ag.sala);
-            });
+        const diffHoras = (new Date(ag.fim) - agora)/(1000*60*60);
+        if(diffHoras>0) total++;
+        if(diffHoras<24 && diffHoras>0) proximas24h++;
+        if(new Date(ag.fim) > agora) salasOcupadasSet.add(ag.sala);
+    });
 
-            document.getElementById('total-agendamentos').textContent = total;
-            document.getElementById('salas-ocupadas').textContent = salasOcupadasSet.size;
-            document.getElementById('proximas-24h').textContent = proximas24h;
+    document.getElementById('total-agendamentos').textContent = total;
+    document.getElementById('salas-ocupadas').textContent = salasOcupadasSet.size;
+    document.getElementById('proximas-24h').textContent = proximas24h;
 
-            lista.innerHTML = '';
-            for (const sala in salasObj) {
-                const card = document.createElement('div');
-                card.className = 'sala-card sala-' + (sala.split(' ')[1] || 1);
-                card.innerHTML = `<h2>${sala}</h2>`;
+    lista.innerHTML='';
+    for(const sala in salasObj){
+        const card = document.createElement('div');
+        card.className='sala-card sala-'+(sala.split(' ')[1]||1);
+        card.innerHTML=`<h2>${sala}</h2>`;
+        salasObj[sala].sort((a,b)=>new Date(a.inicio)-new Date(b.inicio));
+        salasObj[sala].forEach(ag=>{
+            const item = document.createElement('div');
+            item.className='agendamento';
+            item.innerHTML=`<strong>${ag.professor}</strong><br>
+            ${new Date(ag.inicio).toLocaleString()} - ${new Date(ag.fim).toLocaleString()}
+            <button onclick="excluirAgendamento(${ag.id})">Excluir</button>`;
+            card.appendChild(item);
+        });
+        lista.appendChild(card);
+    }
+}
 
-                salasObj[sala].sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
-                salasObj[sala].forEach(ag => {
-                    const item = document.createElement('div');
-                    item.className = 'agendamento';
-                    item.innerHTML = `<strong>${ag.professor}</strong><br>
-                            ${new Date(ag.inicio).toLocaleString()} - ${new Date(ag.fim).toLocaleString()}
-                            <button onclick="excluirAgendamento(${ag.id})">Excluir</button>`;
-                    card.appendChild(item);
-                });
-                lista.appendChild(card);
-            }
-        }
+document.getElementById('form-agendamento').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const sala = document.getElementById('sala').value;
+    const professor = document.getElementById('professor').value;
+    const inicio = document.getElementById('inicio').value;
+    const fim = document.getElementById('fim').value;
 
-        // Adicionar agendamento local
-        document.getElementById('form-agendamento').addEventListener('submit', e => {
-            e.preventDefault();
-            const sala = document.getElementById('sala').value;
-            const professor = document.getElementById('professor').value;
-            const inicio = document.getElementById('inicio').value;
-            const fim = document.getElementById('fim').value;
+    if(new Date(fim)<=new Date(inicio)){
+        alert("A data final deve ser depois da inicial!");
+        return;
+    }
 
-            if (new Date(fim) <= new Date(inicio)) {
-                alert("A data final deve ser depois da inicial!");
-                return;
-            }
+    const dados = {sala, professor, inicio, fim};
 
-            agendamentos.push({ id: agendamentos.length, sala, professor, inicio, fim });
-            mostrarMensagem("Agendamento adicionado!");
+    try{
+        const res = await fetch(SCRIPT_URL,{
+            method:'POST',
+            body: JSON.stringify(dados),
+            headers:{'Content-Type':'application/json'}
+        });
+        const resposta = await res.json();
+        if(resposta.status==="sucesso"){
+            mostrarMensagem("✅ Agendamento salvo no Google Sheets!");
+            agendamentos.push(dados);
             renderizarAgendamentos();
             e.target.reset();
-        });
-
-        // Excluir agendamento
-        function excluirAgendamento(id) {
-            agendamentos = agendamentos.filter(a => a.id !== id);
-            mostrarMensagem("Agendamento excluído!", "red");
-            renderizarAgendamentos();
+        }else{
+            mostrarMensagem("⚠️ Erro ao salvar no Google Sheets","red");
         }
+    }catch(err){
+        console.error(err);
+        mostrarMensagem("❌ Falha na conexão com o servidor","red");
+    }
+});
 
-        // Inicializa
-        carregarAgendamentos();
-    </script>
+function excluirAgendamento(id){
+    agendamentos = agendamentos.filter(a=>a.id!==id);
+    mostrarMensagem("Agendamento excluído!","red");
+    renderizarAgendamentos();
+}
+
+// Inicializa mural
+carregarAgendamentos();
+</script>
 </body>
-
 </html>
