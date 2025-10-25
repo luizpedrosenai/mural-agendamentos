@@ -24,7 +24,7 @@ box-shadow:0 6px 20px rgba(0,0,0,0.15); transition:transform 0.3s, box-shadow 0.
 background:rgba(255,255,255,0.2);box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:transform 0.2s, background 0.5s;}
 .agendamento:hover{transform:scale(1.03);}
 .agendamento button{position:absolute;top:10px;right:10px;background:#dc3545;color:white;
-border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.8rem;transition:0.3s;}
+border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.8rem;transition:0.3s;margin-left:5px;}
 .agendamento button:hover{background:#a71d2a;}
 #mensagem{text-align:center;font-weight:bold;margin-bottom:15px;min-height:24px;}
 @media(max-width:700px){form input,form select,form button{flex:1 1 100%;}}
@@ -130,13 +130,10 @@ document.getElementById('form-agendamento').addEventListener('submit', async e=>
             body:JSON.stringify({acao:"add", sala, professor, inicio, fim}),
             headers:{'Content-Type':'application/json'}
         });
-        const resposta = await res.json();
-        if(resposta.status==="sucesso"){
-            mostrarMensagem("Agendamento salvo!");
-            carregarAgendamentos();
-            e.target.reset();
-        }else mostrarMensagem("Erro ao salvar","red");
-    }catch(err){ console.error(err); mostrarMensagem("Falha na conexão","red"); }
+        const r = await res.json();
+        if(r.status==="sucesso"){ mostrarMensagem("Agendamento salvo!"); carregarAgendamentos(); e.target.reset(); }
+        else mostrarMensagem("Erro ao salvar","red");
+    }catch(err){ console.error(err); mostrarMensagem("Falha na conexão com o servidor","red"); }
 });
 
 async function excluirAgendamento(id){
