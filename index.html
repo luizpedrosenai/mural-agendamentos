@@ -51,7 +51,7 @@ button:hover{background:#0056b3;transform:translateY(-2px);}
 <div class="salas" id="lista-salas"></div>
 
 <script>
-const SCRIPT_URL = "COLE_AQUI_SEU_LINK_DO_APPS_SCRIPT";
+const SCRIPT_URL = "COLE_AQUI_SEU_LINK_DO_APPS_SCRIPT"; // Substitua pelo link do Web App
 let agendamentos = [];
 
 function mostrarMensagem(texto, cor="green"){
@@ -116,9 +116,7 @@ document.getElementById('form-agendamento').addEventListener('submit', async e=>
     const inicio = document.getElementById('inicio').value;
     const fim = document.getElementById('fim').value;
 
-    if(new Date(fim)<=new Date(inicio)){
-        alert("A data final deve ser depois da inicial!"); return;
-    }
+    if(new Date(fim)<=new Date(inicio)){ alert("A data final deve ser depois da inicial!"); return; }
 
     try{
         const res = await fetch(SCRIPT_URL,{
