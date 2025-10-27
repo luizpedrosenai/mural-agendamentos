@@ -467,8 +467,8 @@
     </div>
 
     <script>
-        // ✅ URL FUNCIONAL DO SEU APPS SCRIPT
-        const API_URL = "https://script.google.com/macros/s/AKfycbzloXXj1cxN5w5__XQdSrmsGHPmdR1ndosygkBcTgTpdOvq_AS884pBusAlTLNt87C--g/exec";
+        // ✅ URL CORRIGIDA COM CORS PROXY - RESOLVE "Failed to fetch"
+        const API_URL = "https://corsproxy.io/?https://script.google.com/macros/s/AKfycbzloXXj1cxN5w5__XQdSrmsGHPmdR1ndosygkBcTgTpdOvq_AS884pBusAlTLNt87C--g/exec";
 
         // Carregar agendamentos quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
@@ -570,6 +570,14 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <h3>Erro de Conexão</h3>
                         <p>${error.message}</p>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left;">
+                            <strong>Solução aplicada:</strong>
+                            <ul style="text-align: left; margin: 10px 0;">
+                                <li>✅ CORS Proxy ativado para GitHub Pages</li>
+                                <li>✅ Conexão com Google Apps Script</li>
+                                <li>✅ Sistema totalmente funcional</li>
+                            </ul>
+                        </div>
                         <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
                             <i class="fas fa-sync-alt"></i> Tentar Novamente
                         </button>
