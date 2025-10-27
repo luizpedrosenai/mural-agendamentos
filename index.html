@@ -99,8 +99,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .btn:hover {
@@ -108,20 +106,12 @@
             box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
         }
 
-        .btn-delete {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        }
-
-        .btn-delete:hover {
-            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
-        }
-
         .btn-success {
             background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
         }
 
-        .btn-success:hover {
-            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
 
         .agendamentos-section {
@@ -129,12 +119,6 @@
             padding: 25px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-
-        .agendamentos-section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.5em;
         }
 
         .agendamentos-grid {
@@ -175,6 +159,7 @@
         .agendamento-actions {
             display: flex;
             gap: 10px;
+            margin-top: 15px;
         }
 
         .btn-small {
@@ -208,12 +193,6 @@
             text-align: center;
             padding: 40px;
             color: #666;
-        }
-
-        .empty-state i {
-            font-size: 3em;
-            margin-bottom: 20px;
-            opacity: 0.5;
         }
 
         .status-indicator {
@@ -254,15 +233,6 @@
             border: 1px solid #f5c6cb;
         }
 
-        .online-badge {
-            background: #2ecc71;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            margin-left: 10px;
-        }
-
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -285,14 +255,14 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎓 Sistema de Agendamento <span class="online-badge">ONLINE</span></h1>
-            <p>Conectado com Google Sheets - Dados salvos na nuvem</p>
+            <h1>🎓 Sistema de Agendamento</h1>
+            <p>Conectado com Google Sheets - SENAI</p>
         </header>
 
         <div class="main-content">
             <!-- Status da API -->
             <div id="api-status" class="api-status" style="display: none;">
-                🔄 Verificando conexão...
+                🔄 Conectando com Google Sheets...
             </div>
 
             <section class="form-section">
@@ -329,7 +299,7 @@
                     </div>
                 </div>
                 <button class="btn btn-success" onclick="adicionarAgendamento()">
-                    📅 Salvar na Planilha
+                    💾 Salvar na Planilha
                 </button>
                 <button class="btn" onclick="abrirPlanilha()" style="margin-left: 10px;">
                     📊 Ver Planilha
@@ -338,7 +308,7 @@
 
             <section class="agendamentos-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2>📋 Agendamentos da Planilha</h2>
+                    <h2>📋 Agendamentos</h2>
                     <button class="btn btn-small" onclick="carregarAgendamentos()">
                         🔄 Atualizar
                     </button>
@@ -354,16 +324,15 @@
     </div>
 
     <script>
-        // ✅ URL DA SUA API DO GOOGLE APPS SCRIPT
+        // ✅ URL DO SEU GOOGLE APPS SCRIPT
         const API_URL = "https://script.google.com/macros/s/AKfycbwJqwGO6h70l73-SyFjkUNj0r-3WjnHzbq5SGeB5BGMi8c90_hw9cE4I-N3J6SseBC5SQ/exec";
         const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1EMt_TECPbkYBtQM1_SVu2P-fa-Og9rynwoL2HdHSbAs/edit";
 
         let agendamentos = [];
-        let apiOnline = false;
 
-        // Carregar agendamentos quando a página carregar
+        // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Iniciando sistema online...');
+            console.log('🚀 Iniciando sistema online...');
             
             // Configurar data mínima como hoje
             const hoje = new Date().toISOString().split('T')[0];
@@ -393,7 +362,11 @@
             `;
             
             try {
-                console.log('🔄 Conectando com Google Sheets...');
+                console.log('📡 Conectando com Google Sheets...');
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'api-status api-online';
+                statusDiv.innerHTML = '🔄 Conectando com Google Sheets...';
+                
                 const response = await fetch(API_URL);
                 
                 if (!response.ok) {
@@ -404,35 +377,22 @@
                 agendamentos = Array.isArray(data) ? data : [];
                 console.log(`✅ ${agendamentos.length} agendamentos carregados`);
                 
-                // API está online
-                apiOnline = true;
-                statusDiv.style.display = 'block';
                 statusDiv.className = 'api-status api-online';
-                statusDiv.innerHTML = '✅ <strong>Conectado</strong> - Dados sincronizados com Google Sheets';
+                statusDiv.innerHTML = `✅ Conectado - ${agendamentos.length} agendamentos carregados`;
                 
                 exibirAgendamentos(agendamentos);
                 
             } catch (error) {
-                console.error('❌ Erro ao conectar com Google Sheets:', error);
-                
-                // API offline
-                apiOnline = false;
-                statusDiv.style.display = 'block';
+                console.error('❌ Erro ao carregar:', error);
                 statusDiv.className = 'api-status api-offline';
-                statusDiv.innerHTML = '❌ <strong>Sem conexão</strong> - Não foi possível conectar com Google Sheets';
+                statusDiv.innerHTML = '❌ Erro de conexão com Google Sheets';
                 
                 container.innerHTML = `
                     <div class="empty-state">
                         <div style="font-size: 3em; margin-bottom: 20px;">❌</div>
                         <h3>Erro de Conexão</h3>
                         <p>Não foi possível conectar com o Google Sheets.</p>
-                        <p><strong>Possíveis causas:</strong></p>
-                        <ul style="text-align: left; margin: 15px 0;">
-                            <li>URL da API incorreta</li>
-                            <li>Google Apps Script não implantado</li>
-                            <li>Problema de CORS</li>
-                            <li>Planilha não compartilhada publicamente</li>
-                        </ul>
+                        <p><em>${error.message}</em></p>
                         <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
                             🔄 Tentar Novamente
                         </button>
@@ -448,15 +408,15 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div style="font-size: 3em; margin-bottom: 20px;">📭</div>
-                        <h3>Nenhum agendamento encontrado</h3>
-                        <p>A planilha está vazia. Adicione o primeiro agendamento usando o formulário acima.</p>
+                        <h3>Nenhum agendamento</h3>
+                        <p>A planilha está vazia. Adicione o primeiro agendamento!</p>
                     </div>
                 `;
                 return;
             }
 
-            // Ordenar agendamentos por data
-            agendamentos.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+            // Ordenar por data mais recente primeiro
+            agendamentos.sort((a, b) => new Date(b.inicio) - new Date(a.inicio));
 
             let html = '<div class="agendamentos-grid">';
             
@@ -489,10 +449,10 @@
                             <p><strong>Status:</strong> ${statusText}</p>
                         </div>
                         <div class="agendamento-actions">
-                            <button class="btn btn-small" onclick="editarAgendamento(${ag.id})">
-                                ✏️ Editar
+                            <button class="btn btn-small" onclick="abrirPlanilha()">
+                                📝 Editar
                             </button>
-                            <button class="btn btn-small btn-delete" onclick="deletarAgendamento(${ag.id})">
+                            <button class="btn btn-small btn-danger" onclick="solicitarExclusao(${ag.id})">
                                 🗑️ Excluir
                             </button>
                         </div>
@@ -522,9 +482,9 @@
                 return;
             }
 
-            // Combinar data e hora para o formato ISO
-            const inicioISO = `${data}T${horaInicio}:00`;
-            const fimISO = `${data}T${horaFim}:00`;
+            // Combinar data e hora
+            const inicioISO = `${data}T${horaInicio}`;
+            const fimISO = `${data}T${horaFim}`;
 
             const novoAgendamento = {
                 sala: sala,
@@ -536,8 +496,9 @@
             const statusDiv = document.getElementById('api-status');
             
             try {
+                statusDiv.style.display = 'block';
                 statusDiv.className = 'api-status api-online';
-                statusDiv.innerHTML = '🔄 <strong>Salvando na planilha...</strong>';
+                statusDiv.innerHTML = '💾 Salvando na planilha...';
 
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -550,42 +511,34 @@
                 const resultado = await response.json();
                 
                 if (resultado.status === "sucesso") {
-                    statusDiv.innerHTML = '✅ <strong>Salvo com sucesso!</strong> - Agendamento adicionado à planilha';
-                    alert('✅ Agendamento salvo no Google Sheets!');
+                    statusDiv.innerHTML = '✅ Agendamento salvo na planilha!';
+                    alert('✅ Agendamento salvo com sucesso!');
                     
                     // Limpar formulário
                     document.getElementById('sala').value = '';
                     document.getElementById('professor').value = '';
                     
-                    // Recarregar lista
+                    // Recarregar lista após 2 segundos
                     setTimeout(() => {
                         carregarAgendamentos();
-                        statusDiv.innerHTML = '✅ <strong>Conectado</strong> - Dados sincronizados com Google Sheets';
                     }, 2000);
                     
                 } else {
-                    throw new Error(resultado.error || 'Erro desconhecido ao salvar');
+                    throw new Error(resultado.error || 'Erro desconhecido');
                 }
                 
             } catch (error) {
-                console.error('Erro ao salvar agendamento:', error);
+                console.error('Erro ao salvar:', error);
                 statusDiv.className = 'api-status api-offline';
-                statusDiv.innerHTML = '❌ <strong>Erro ao salvar</strong> - ' + error.message;
-                alert('❌ Erro ao salvar no Google Sheets: ' + error.message);
+                statusDiv.innerHTML = '❌ Erro ao salvar na planilha';
+                alert('❌ Erro ao salvar: ' + error.message);
             }
         }
 
-        async function deletarAgendamento(id) {
-            if (!confirm('⚠️ Para excluir este agendamento, você precisa:\n\n1. Abrir a planilha Google Sheets\n2. Encontrar a linha correspondente\n3. Deletar manualmente\n\nDeseja abrir a planilha agora?')) {
-                return;
+        function solicitarExclusao(id) {
+            if (confirm('🗑️ Para excluir este agendamento:\n\n1. Clique em "OK" para abrir a planilha\n2. Encontre e delete a linha correspondente\n3. Volte aqui e clique em "Atualizar"\n\nAbrir planilha agora?')) {
+                abrirPlanilha();
             }
-            
-            abrirPlanilha();
-        }
-
-        function editarAgendamento(id) {
-            alert(`✏️ Edição de agendamentos\n\nPara editar, abra a planilha Google Sheets e modifique diretamente.\n\nID do agendamento: ${id}`);
-            abrirPlanilha();
         }
 
         function abrirPlanilha() {
@@ -594,10 +547,10 @@
 
         function formatarData(dataString) {
             try {
-                // Tenta converter a string da planilha para Date
+                // Tenta converter para Date
                 let data = new Date(dataString);
                 
-                // Se não for uma data válida, tenta outro formato
+                // Se não for válida, tenta outros formatos
                 if (isNaN(data.getTime())) {
                     // Tenta formato "YYYY-MM-DD HH:MM"
                     const [datePart, timePart] = dataString.split(' ');
@@ -608,9 +561,8 @@
                     }
                 }
                 
-                // Se ainda não for válida, retorna a string original
                 if (isNaN(data.getTime())) {
-                    return dataString;
+                    return dataString; // Retorna original se não conseguir converter
                 }
                 
                 return data.toLocaleString('pt-BR', {
