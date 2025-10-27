@@ -121,6 +121,14 @@
             box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
         }
 
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+        }
+
         .agendamentos-section {
             background: white;
             padding: 25px;
@@ -227,6 +235,30 @@
             background: #e74c3c;
         }
 
+        .status-warning {
+            background: #f39c12;
+        }
+
+        .api-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .api-online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .api-offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -254,12 +286,17 @@
         </header>
 
         <div class="main-content">
+            <!-- Status da API -->
+            <div id="api-status" class="api-status api-online" style="display: none;">
+                ✅ Conectado com a planilha Google Sheets
+            </div>
+
             <section class="form-section">
                 <h2>➕ Novo Agendamento</h2>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="sala">Sala:</label>
-                        <select id="sala">
+                        <select id="sala" required>
                             <option value="">Selecione uma sala</option>
                             <option value="Sala 1">Sala 1</option>
                             <option value="Sala 2">Sala 2</option>
@@ -272,24 +309,29 @@
                     </div>
                     <div class="form-group">
                         <label for="professor">Professor:</label>
-                        <input type="text" id="professor" placeholder="Nome do professor">
+                        <input type="text" id="professor" placeholder="Nome do professor" required>
                     </div>
                     <div class="form-group">
                         <label for="inicio">Data e Hora de Início:</label>
-                        <input type="datetime-local" id="inicio">
+                        <input type="datetime-local" id="inicio" required>
                     </div>
                     <div class="form-group">
                         <label for="fim">Data e Hora de Término:</label>
-                        <input type="datetime-local" id="fim">
+                        <input type="datetime-local" id="fim" required>
                     </div>
                 </div>
-                <button class="btn" onclick="adicionarAgendamento()">
+                <button class="btn btn-success" onclick="adicionarAgendamento()">
                     📅 Agendar Sala
                 </button>
             </section>
 
             <section class="agendamentos-section">
-                <h2>📋 Agendamentos Existentes</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📋 Agendamentos Existentes</h2>
+                    <button class="btn btn-small" onclick="carregarAgendamentos()">
+                        🔄 Atualizar
+                    </button>
+                </div>
                 <div id="agendamentos-container">
                     <div class="loading">
                         <div class="loading-spinner"></div>
@@ -301,23 +343,67 @@
     </div>
 
     <script>
-        // ✅ URL CORRETA DO SEU APPS SCRIPT
-        const API_URL = "https://script.google.com/macros/s/AKfycbxl1IBvHnUdozp77_BH-PNXvo_kamhOiyIoo8ieuoT2sJfGR2uitxJOk2QWpBCIG40g1w/exec";
+        // ✅ URL DA API DO GOOGLE APPS SCRIPT
+        const API_URL = "https://script.google.com/macros/s/AKfycbwJqwGO6h70l73-SyFjkUNj0r-3WjnHzbq5SGeB5BGMi8c90_hw9cE4I-N3J6SseBC5SQ/exec";
+
+        // Dados de exemplo para fallback
+        const dadosExemplo = [
+            {
+                id: 1,
+                sala: "Sala 1",
+                professor: "Prof. João Silva",
+                inicio: "2024-10-28 08:00",
+                fim: "2024-10-28 10:00"
+            },
+            {
+                id: 2,
+                sala: "Laboratório 1",
+                professor: "Prof. Maria Santos", 
+                inicio: "2024-10-28 10:00",
+                fim: "2024-10-28 12:00"
+            },
+            {
+                id: 3,
+                sala: "Auditório",
+                professor: "Prof. Carlos Oliveira",
+                inicio: "2024-10-28 14:00", 
+                fim: "2024-10-28 16:00"
+            }
+        ];
+
+        let agendamentos = [];
+        let apiOnline = false;
 
         // Carregar agendamentos quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Página carregada - iniciando sistema...');
-            carregarAgendamentos();
             
             // Configurar datas mínimas para os campos de data/hora
             const agora = new Date();
             const dataMinima = agora.toISOString().slice(0, 16);
             document.getElementById('inicio').min = dataMinima;
             document.getElementById('fim').min = dataMinima;
+            
+            // Configurar valores padrão
+            const inicioPadrao = new Date(agora.getTime() + 60 * 60 * 1000); // 1 hora à frente
+            const fimPadrao = new Date(inicioPadrao.getTime() + 2 * 60 * 60 * 1000); // 2 horas depois
+            
+            document.getElementById('inicio').value = inicioPadrao.toISOString().slice(0, 16);
+            document.getElementById('fim').value = fimPadrao.toISOString().slice(0, 16);
+            
+            carregarAgendamentos();
         });
 
         async function carregarAgendamentos() {
             const container = document.getElementById('agendamentos-container');
+            const statusDiv = document.getElementById('api-status');
+            
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando agendamentos...</p>
+                </div>
+            `;
             
             try {
                 console.log('Carregando agendamentos da API...');
@@ -327,70 +413,92 @@
                     throw new Error(`Erro HTTP! status: ${response.status}`);
                 }
                 
-                const agendamentos = await response.json();
-                console.log(`✅ ${agendamentos.length} agendamentos carregados`);
-
-                if (agendamentos.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div style="font-size: 3em; margin-bottom: 20px; opacity: 0.5;">📭</div>
-                            <h3>Nenhum agendamento encontrado</h3>
-                            <p>Adicione o primeiro agendamento usando o formulário acima.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Ordenar agendamentos por data de início
-                agendamentos.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
-
-                let html = '<div class="agendamentos-grid">';
+                agendamentos = await response.json();
+                console.log(`✅ ${agendamentos.length} agendamentos carregados da API`);
                 
-                agendamentos.forEach(ag => {
-                    const inicio = formatarData(ag.inicio);
-                    const fim = formatarData(ag.fim);
-                    const agora = new Date();
-                    const dataInicio = new Date(ag.inicio);
-                    const status = dataInicio > agora ? 'disponivel' : 'ocupado';
-                    
-                    html += `
-                        <div class="agendamento-card">
-                            <div class="status-indicator ${status === 'ocupado' ? 'status-occupied' : ''}"></div>
-                            <h3>${ag.sala}</h3>
-                            <div class="agendamento-info">
-                                <p><strong>Professor:</strong> ${ag.professor}</p>
-                                <p><strong>Início:</strong> ${inicio}</p>
-                                <p><strong>Término:</strong> ${fim}</p>
-                                <p><strong>Status:</strong> ${status === 'disponivel' ? '🟢 Disponível' : '🔴 Em andamento'}</p>
-                            </div>
-                            <div class="agendamento-actions">
-                                <button class="btn btn-small" onclick="editarAgendamento(${ag.id})">
-                                    ✏️ Editar
-                                </button>
-                                <button class="btn btn-small btn-delete" onclick="deletarAgendamento(${ag.id})">
-                                    🗑️ Excluir
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
+                // API está online
+                apiOnline = true;
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'api-status api-online';
+                statusDiv.textContent = '✅ Conectado com a planilha Google Sheets';
                 
-                html += '</div>';
-                container.innerHTML = html;
+                exibirAgendamentos(agendamentos);
                 
             } catch (error) {
-                console.error('❌ Erro ao carregar agendamentos:', error);
+                console.error('❌ Erro ao carregar da API:', error);
+                
+                // Usar dados exemplo como fallback
+                apiOnline = false;
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'api-status api-offline';
+                statusDiv.textContent = '⚠️ Modo offline - usando dados de exemplo';
+                
+                agendamentos = dadosExemplo;
+                exibirAgendamentos(agendamentos);
+            }
+        }
+
+        function exibirAgendamentos(agendamentos) {
+            const container = document.getElementById('agendamentos-container');
+            
+            if (!agendamentos || agendamentos.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div style="font-size: 3em; margin-bottom: 20px; opacity: 0.5;">❌</div>
-                        <h3>Erro ao carregar agendamentos</h3>
-                        <p>${error.message}</p>
-                        <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
-                            🔄 Tentar Novamente
-                        </button>
+                        <div style="font-size: 3em; margin-bottom: 20px; opacity: 0.5;">📭</div>
+                        <h3>Nenhum agendamento encontrado</h3>
+                        <p>Adicione o primeiro agendamento usando o formulário acima.</p>
                     </div>
                 `;
+                return;
             }
+
+            // Ordenar agendamentos por data de início
+            agendamentos.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+
+            let html = '<div class="agendamentos-grid">';
+            
+            agendamentos.forEach(ag => {
+                const inicio = formatarData(ag.inicio);
+                const fim = formatarData(ag.fim);
+                const agora = new Date();
+                const dataInicio = new Date(ag.inicio);
+                const dataFim = new Date(ag.fim);
+                
+                let status = 'disponivel';
+                let statusText = '🟢 Disponível';
+                
+                if (dataInicio <= agora && dataFim >= agora) {
+                    status = 'ocupado';
+                    statusText = '🔴 Em andamento';
+                } else if (dataFim < agora) {
+                    status = 'concluido';
+                    statusText = '⚫ Concluído';
+                }
+                
+                html += `
+                    <div class="agendamento-card">
+                        <div class="status-indicator ${status === 'ocupado' ? 'status-occupied' : status === 'concluido' ? 'status-warning' : ''}"></div>
+                        <h3>${ag.sala}</h3>
+                        <div class="agendamento-info">
+                            <p><strong>Professor:</strong> ${ag.professor}</p>
+                            <p><strong>Início:</strong> ${inicio}</p>
+                            <p><strong>Término:</strong> ${fim}</p>
+                            <p><strong>Status:</strong> ${statusText}</p>
+                        </div>
+                        <div class="agendamento-actions">
+                            <button class="btn btn-small" onclick="editarAgendamento(${ag.id})">
+                                ✏️ Editar
+                            </button>
+                            <button class="btn btn-small btn-delete" onclick="deletarAgendamento(${ag.id})">
+                                🗑️ Excluir
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
         }
 
         async function adicionarAgendamento() {
@@ -410,97 +518,99 @@
                 return;
             }
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        acao: "add",
-                        sala: sala,
-                        professor: professor,
-                        inicio: inicio,
-                        fim: fim
-                    })
-                });
+            const novoAgendamento = {
+                sala: sala,
+                professor: professor,
+                inicio: inicio,
+                fim: fim
+            };
 
-                const resultado = await response.json();
-                
-                if (resultado.status === "sucesso") {
-                    alert('✅ Agendamento adicionado com sucesso!');
+            try {
+                if (apiOnline) {
+                    // Tentar salvar na API
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(novoAgendamento)
+                    });
+
+                    const resultado = await response.json();
                     
-                    // Limpar formulário
-                    document.getElementById('sala').value = '';
-                    document.getElementById('professor').value = '';
-                    document.getElementById('inicio').value = '';
-                    document.getElementById('fim').value = '';
-                    
-                    // Recarregar lista
-                    carregarAgendamentos();
+                    if (resultado.status === "sucesso") {
+                        alert('✅ Agendamento salvo na planilha!');
+                    } else {
+                        throw new Error(resultado.error || 'Erro desconhecido');
+                    }
                 } else {
-                    throw new Error(resultado.error || 'Erro desconhecido');
+                    // Modo offline - adicionar localmente
+                    novoAgendamento.id = Date.now();
+                    agendamentos.push(novoAgendamento);
+                    alert('✅ Agendamento salvo localmente (modo offline)');
                 }
+                
+                // Limpar formulário
+                document.getElementById('sala').value = '';
+                document.getElementById('professor').value = '';
+                
+                // Configurar novos valores padrão
+                const agora = new Date();
+                const inicioPadrao = new Date(agora.getTime() + 60 * 60 * 1000);
+                const fimPadrao = new Date(inicioPadrao.getTime() + 2 * 60 * 60 * 1000);
+                
+                document.getElementById('inicio').value = inicioPadrao.toISOString().slice(0, 16);
+                document.getElementById('fim').value = fimPadrao.toISOString().slice(0, 16);
+                
+                // Recarregar lista
+                exibirAgendamentos(agendamentos);
+                
             } catch (error) {
                 console.error('Erro ao adicionar agendamento:', error);
-                alert('❌ Erro ao adicionar agendamento: ' + error.message);
+                alert('❌ Erro ao salvar agendamento: ' + error.message);
             }
         }
 
-        async function deletarAgendamento(id) {
+        function deletarAgendamento(id) {
             if (!confirm('⚠️ Tem certeza que deseja excluir este agendamento?')) {
                 return;
             }
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        acao: "delete",
-                        id: id
-                    })
-                });
-
-                const resultado = await response.json();
-                
-                if (resultado.status === "sucesso") {
-                    alert('✅ Agendamento excluído com sucesso!');
-                    carregarAgendamentos();
-                } else {
-                    throw new Error(resultado.error || 'Erro desconhecido');
+            if (apiOnline) {
+                alert('📝 Para excluir permanentemente, abra a planilha Google Sheets e delete a linha manualmente.');
+            } else {
+                // Modo offline - remover localmente
+                const index = agendamentos.findIndex(ag => ag.id === id);
+                if (index !== -1) {
+                    agendamentos.splice(index, 1);
+                    exibirAgendamentos(agendamentos);
+                    alert('✅ Agendamento removido localmente');
                 }
-            } catch (error) {
-                console.error('Erro ao excluir agendamento:', error);
-                alert('❌ Erro ao excluir agendamento: ' + error.message);
             }
         }
 
         function editarAgendamento(id) {
-            alert(`✏️ Funcionalidade de edição para o agendamento ID: ${id}\n\nEsta funcionalidade será implementada em breve!`);
-            // Para implementar a edição, você precisará:
-            // 1. Buscar os dados do agendamento específico
-            // 2. Preencher o formulário com esses dados
-            // 3. Alterar o botão para "Atualizar" em vez de "Adicionar"
-            // 4. Enviar uma requisição POST com ação "update"
+            alert(`✏️ Funcionalidade de edição para: ${id}\n\nEm breve você poderá editar agendamentos diretamente!`);
         }
 
         function formatarData(dataString) {
-            const data = new Date(dataString);
-            return data.toLocaleString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            try {
+                const data = new Date(dataString);
+                return data.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return dataString;
+            }
         }
 
-        // Função para verificar conflitos de agendamento (opcional)
-        function verificarConflitos(novaSala, novoInicio, novoFim, agendamentosExistentes) {
-            return agendamentosExistentes.some(ag => {
+        // Função para verificar conflitos de agendamento
+        function verificarConflitos(novaSala, novoInicio, novoFim) {
+            return agendamentos.some(ag => {
                 return ag.sala === novaSala &&
                     ((new Date(novoInicio) >= new Date(ag.inicio) && new Date(novoInicio) < new Date(ag.fim)) ||
                      (new Date(novoFim) > new Date(ag.inicio) && new Date(novoFim) <= new Date(ag.fim)) ||
