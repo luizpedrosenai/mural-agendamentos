@@ -6,237 +6,376 @@
     <title>🎓 Sistema de Agendamento - SENAI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { 
-            --primary: #2c3e50; 
-            --secondary: #3498db; 
-            --success: #27ae60; 
-            --danger: #e74c3c; 
-            --warning: #f39c12;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; 
-            padding: 20px; 
+            min-height: 100vh;
+            padding: 20px;
             color: #333;
         }
-        
+
         .container {
-            max-width: 1200px; 
-            margin: 0 auto; 
+            max-width: 1200px;
+            margin: 0 auto;
             background: white;
-            border-radius: 20px; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15); 
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
             overflow: hidden;
         }
-        
+
         header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white; 
-            padding: 40px 30px; 
+            color: white;
+            padding: 40px 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
         header h1 {
-            font-size: 2.5em;
+            font-size: 2.8em;
             margin-bottom: 10px;
+            font-weight: 700;
         }
-        
-        .main-content { 
-            padding: 30px; 
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.9;
         }
-        
+
+        .main-content {
+            padding: 40px;
+        }
+
         .form-section {
-            background: #f8f9fa;
-            padding: 25px; 
-            border-radius: 10px;
-            margin-bottom: 30px; 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
             border-left: 5px solid var(--secondary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        
-        .form-grid {
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px; 
-            margin-bottom: 20px;
-        }
-        
-        .form-group { 
-            display: flex; 
-            flex-direction: column; 
-        }
-        
-        .form-group label { 
-            font-weight: 600; 
-            margin-bottom: 5px; 
+
+        .section-title {
             color: var(--primary);
-        }
-        
-        .form-group input, .form-group select {
-            padding: 12px; 
-            border: 2px solid #e1e8ed; 
-            border-radius: 8px; 
-            font-size: 16px;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
-            color: white; 
-            border: none; 
-            padding: 15px 30px; 
-            border-radius: 8px;
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
-        
-        .btn:hover { 
-            transform: translateY(-2px); 
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
         }
-        
-        .btn-delete { 
-            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
         }
-        
-        .btn-small { 
-            padding: 10px 15px; 
-            font-size: 14px; 
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-size: 1.1em;
         }
-        
-        .agendamentos-section { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 10px; 
-        }
-        
-        .agendamentos-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 20px; 
-        }
-        
-        .agendamento-card {
-            background: #f8f9fa; 
-            border: 1px solid #e1e8ed; 
+
+        .form-group input, .form-group select {
+            padding: 15px;
+            border: 2px solid #e1e8ed;
             border-radius: 10px;
-            padding: 20px; 
-            transition: all 0.3s ease; 
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-delete:hover {
+            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-small {
+            padding: 12px 20px;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .agendamentos-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .agendamentos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .agendamento-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 1px solid #e1e8ed;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
             position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
-        
-        .agendamento-card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+
+        .agendamento-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
         }
-        
-        .agendamento-info { 
-            margin-bottom: 15px; 
+
+        .agendamento-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
-        
-        .agendamento-info p { 
-            margin: 5px 0; 
+
+        .agendamento-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .agendamento-info {
+            margin-bottom: 20px;
+        }
+
+        .agendamento-info p {
+            margin: 8px 0;
             color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .agendamento-actions { 
-            display: flex; 
-            gap: 10px; 
+
+        .agendamento-actions {
+            display: flex;
+            gap: 12px;
         }
-        
-        .loading { 
-            text-align: center; 
-            padding: 40px; 
-            color: #666; 
-        }
-        
-        .loading-spinner {
-            border: 4px solid #f3f3f3; 
-            border-top: 4px solid var(--secondary); 
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            width: 40px; 
-            height: 40px; 
-            animation: spin 1s linear infinite; 
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-occupied {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+
+        .status-warning {
+            background: var(--warning);
+            box-shadow: 0 0 10px var(--warning);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
-        
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        
-        .empty-state { 
-            text-align: center; 
-            padding: 40px; 
-            color: #666; 
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
         }
-        
-        .status-indicator {
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            width: 12px; 
-            height: 12px;
-            border-radius: 50%; 
-            background: var(--success);
-        }
-        
-        .status-occupied { 
-            background: var(--danger);
-        }
-        
+
         .connection-status {
             background: #e8f4fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
             text-align: center;
+            border: 2px dashed var(--secondary);
         }
-        
-        .proxy-options {
+
+        .success-message {
+            background: linear-gradient(135deg, var(--success) 0%, #229954 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .connection-options {
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin-top: 10px;
+            margin-top: 15px;
             flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .agendamentos-grid {
+                grid-template-columns: 1fr;
+            }
+            header h1 {
+                font-size: 2.2em;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .agendamento-actions {
+                flex-direction: column;
+            }
+            .connection-options {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-calendar-alt"></i> Sistema de Agendamento</h1>
-            <p>🎓 SENAI - Agendamento Compartilhado</p>
+            <div class="header-content">
+                <h1><i class="fas fa-calendar-alt"></i> Sistema de Agendamento</h1>
+                <p>🎓 SENAI - Agendamento de Salas</p>
+            </div>
         </header>
 
         <div class="main-content">
             <!-- Status da Conexão -->
             <div class="connection-status">
-                <h3><i class="fas fa-wifi"></i> Configuração de Conexão</h3>
-                <p>Se estiver com erro, tente outro método:</p>
-                <div class="proxy-options">
-                    <button class="btn btn-small" onclick="usarProxy('direct')">
-                        <i class="fas fa-plug"></i> Conexão Direta
+                <h3><i class="fas fa-wifi"></i> Sistema de Agendamento</h3>
+                <p>Gerencie os agendamentos de salas de forma prática e organizada</p>
+                <div class="connection-options">
+                    <button class="btn btn-small" onclick="usarModoOnline()">
+                        <i class="fas fa-cloud"></i> Modo Online
                     </button>
-                    <button class="btn btn-small" onclick="usarProxy('allorigins')">
-                        <i class="fas fa-server"></i> Proxy 1
-                    </button>
-                    <button class="btn btn-small" onclick="usarProxy('corsproxy')">
-                        <i class="fas fa-cloud"></i> Proxy 2
+                    <button class="btn btn-small" onclick="usarModoLocal()">
+                        <i class="fas fa-desktop"></i> Modo Local
                     </button>
                 </div>
-                <p id="connection-info" style="margin-top: 10px; font-size: 0.9em;">
-                    <i class="fas fa-info-circle"></i> Clique em um método acima para conectar
-                </p>
+                <div id="connection-info" style="margin-top: 15px;">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Iniciando sistema...</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Form Section -->
             <section class="form-section">
-                <h2><i class="fas fa-plus-circle"></i> Novo Agendamento</h2>
+                <h2 class="section-title"><i class="fas fa-plus-circle"></i> Novo Agendamento</h2>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="sala"><i class="fas fa-door-open"></i> Sala:</label>
@@ -245,20 +384,23 @@
                             <option value="Sala 1">Sala 1</option>
                             <option value="Sala 2">Sala 2</option>
                             <option value="Sala 3">Sala 3</option>
+                            <option value="Sala 4">Sala 4</option>
                             <option value="Laboratório 1">Laboratório 1</option>
+                            <option value="Laboratório 2">Laboratório 2</option>
                             <option value="Auditório">Auditório</option>
+                            <option value="Sala de Reuniões">Sala de Reuniões</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="professor"><i class="fas fa-user-tie"></i> Professor:</label>
-                        <input type="text" id="professor" placeholder="Nome do professor">
+                        <input type="text" id="professor" placeholder="Digite o nome do professor">
                     </div>
                     <div class="form-group">
-                        <label for="inicio"><i class="fas fa-clock"></i> Início:</label>
+                        <label for="inicio"><i class="fas fa-play-circle"></i> Início:</label>
                         <input type="datetime-local" id="inicio">
                     </div>
                     <div class="form-group">
-                        <label for="fim"><i class="fas fa-clock"></i> Término:</label>
+                        <label for="fim"><i class="fas fa-stop-circle"></i> Término:</label>
                         <input type="datetime-local" id="fim">
                     </div>
                 </div>
@@ -269,11 +411,11 @@
 
             <!-- Agendamentos Section -->
             <section class="agendamentos-section">
-                <h2><i class="fas fa-list-alt"></i> Agendamentos Compartilhados</h2>
+                <h2 class="section-title"><i class="fas fa-list-alt"></i> Agendamentos</h2>
                 <div id="agendamentos-container">
                     <div class="loading">
                         <div class="loading-spinner"></div>
-                        <p>Selecione um método de conexão acima</p>
+                        <p>Carregando agendamentos...</p>
                     </div>
                 </div>
             </section>
@@ -281,71 +423,114 @@
     </div>
 
     <script>
-        // 🔗 SUA URL DO APPS SCRIPT
+        // 🔗 CONFIGURAÇÕES
         const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbxIPkAKl8KlPooXIDqUAcpo0qGk-MPM4zguLyVDYUI1fZmUFdE31UnbywE7RhIMAipAog/exec";
         
-        let API_URL = "";
         let agendamentos = [];
+        let modoOnline = true;
+        let API_URL = URL_APPS_SCRIPT;
 
-        // Métodos de conexão
-        function usarProxy(tipo) {
-            if (tipo === 'direct') {
-                API_URL = URL_APPS_SCRIPT;
-                document.getElementById('connection-info').innerHTML = 
-                    '<i class="fas fa-sync-alt fa-spin"></i> Testando conexão direta...';
-            } 
-            else if (tipo === 'allorigins') {
-                API_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(URL_APPS_SCRIPT)}`;
-                document.getElementById('connection-info').innerHTML = 
-                    '<i class="fas fa-sync-alt fa-spin"></i> Testando Proxy 1...';
-            }
-            else if (tipo === 'corsproxy') {
-                API_URL = `https://corsproxy.io/?${encodeURIComponent(URL_APPS_SCRIPT)}`;
-                document.getElementById('connection-info').innerHTML = 
-                    '<i class="fas fa-sync-alt fa-spin"></i> Testando Proxy 2...';
-            }
+        // 🚀 INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Sistema de Agendamento - Iniciado');
             
+            // Configurar datas mínimas
+            const agora = new Date();
+            const dataMinima = agora.toISOString().slice(0, 16);
+            document.getElementById('inicio').min = dataMinima;
+            document.getElementById('fim').min = dataMinima;
+            
+            // Iniciar no modo online
+            usarModoOnline();
+        });
+
+        // 🔄 MODOS DE OPERAÇÃO
+        function usarModoOnline() {
+            modoOnline = true;
+            API_URL = URL_APPS_SCRIPT;
+            document.getElementById('connection-info').innerHTML = `
+                <div style="color: var(--secondary);">
+                    <i class="fas fa-cloud"></i>
+                    <strong>Modo Online Ativo</strong>
+                    <p style="margin-top: 8px; font-size: 0.9em;">Conectando com Google Sheets...</p>
+                </div>
+            `;
             carregarAgendamentos();
         }
 
-        // Carregar agendamentos
+        function usarModoLocal() {
+            modoOnline = false;
+            document.getElementById('connection-info').innerHTML = `
+                <div style="color: var(--warning);">
+                    <i class="fas fa-desktop"></i>
+                    <strong>Modo Local Ativo</strong>
+                    <p style="margin-top: 8px; font-size: 0.9em;">Dados salvos localmente no navegador</p>
+                </div>
+            `;
+            carregarAgendamentosLocal();
+        }
+
+        // 📡 FUNÇÕES PRINCIPAIS
         async function carregarAgendamentos() {
             const container = document.getElementById('agendamentos-container');
-            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Conectando...</p></div>';
             
             try {
-                console.log('Tentando conectar com:', API_URL);
+                console.log('📡 Tentando conectar com Google Sheets...');
                 const response = await fetch(API_URL);
                 
-                if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP ${response.status}`);
+                }
                 
                 const dados = await response.json();
                 
                 if (Array.isArray(dados)) {
                     agendamentos = dados;
-                    document.getElementById('connection-info').innerHTML = 
-                        `<i class="fas fa-check-circle" style="color: green;"></i> Conectado! ${dados.length} agendamentos`;
+                    document.getElementById('connection-info').innerHTML = `
+                        <div style="color: var(--success);">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>Conectado! Modo Online</strong>
+                            <p style="margin-top: 8px; font-size: 0.9em;">
+                                ${dados.length} agendamentos - Atualizado: ${new Date().toLocaleTimeString()}
+                            </p>
+                        </div>
+                    `;
                     mostrarAgendamentos();
                 } else {
-                    throw new Error('Resposta inválida');
+                    throw new Error('Resposta inválida do servidor');
                 }
                 
             } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('connection-info').innerHTML = 
-                    `<i class="fas fa-exclamation-triangle" style="color: red;"></i> Erro: ${error.message}`;
+                console.error('❌ Erro no modo online:', error);
                 
-                container.innerHTML = `
-                    <div class="empty-state">
+                // Fallback automático para modo local
+                document.getElementById('connection-info').innerHTML = `
+                    <div style="color: var(--danger);">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Erro de Conexão</h3>
-                        <p>Tente outro método de conexão acima.</p>
-                        <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
-                            <i class="fas fa-sync-alt"></i> Tentar Novamente
-                        </button>
+                        <strong>Erro de Conexão</strong>
+                        <p style="margin-top: 8px; font-size: 0.9em;">
+                            Alternando para modo local automaticamente
+                        </p>
                     </div>
                 `;
+                
+                modoOnline = false;
+                carregarAgendamentosLocal();
             }
+        }
+
+        function carregarAgendamentosLocal() {
+            const dadosSalvos = localStorage.getItem('agendamentos_senai');
+            if (dadosSalvos) {
+                agendamentos = JSON.parse(dadosSalvos);
+            } else {
+                agendamentos = [];
+            }
+            mostrarAgendamentos();
+        }
+
+        function salvarAgendamentosLocal() {
+            localStorage.setItem('agendamentos_senai', JSON.stringify(agendamentos));
         }
 
         function mostrarAgendamentos() {
@@ -355,26 +540,50 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-calendar-times"></i>
-                        <h3>Nenhum agendamento</h3>
-                        <p>Adicione o primeiro agendamento!</p>
+                        <h3>Nenhum agendamento encontrado</h3>
+                        <p>Seja o primeiro a adicionar um agendamento!</p>
+                        ${modoOnline ? '<p style="margin-top: 10px; font-size: 0.9em; color: #888;">Todos os agendamentos são compartilhados em tempo real</p>' : ''}
                     </div>
                 `;
                 return;
             }
 
+            // Ordenar por data
+            agendamentos.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+
             let html = '<div class="agendamentos-grid">';
+            
             agendamentos.forEach(ag => {
                 const inicio = formatarData(ag.inicio);
                 const fim = formatarData(ag.fim);
+                const agora = new Date();
+                const dataInicio = new Date(ag.inicio);
+                const dataFim = new Date(ag.fim);
+                
+                let status = 'disponivel';
+                let statusText = '🟢 Disponível';
+                let statusClass = '';
+                
+                if (agora >= dataInicio && agora <= dataFim) {
+                    status = 'ocupado';
+                    statusText = '🔴 Em andamento';
+                    statusClass = 'status-occupied';
+                } else if (agora > dataFim) {
+                    status = 'concluido';
+                    statusText = '⚫ Concluído';
+                    statusClass = 'status-warning';
+                }
                 
                 html += `
                     <div class="agendamento-card">
-                        <div class="status-indicator"></div>
+                        <div class="status-indicator ${statusClass}"></div>
                         <h3><i class="fas fa-door-open"></i> ${ag.sala}</h3>
                         <div class="agendamento-info">
                             <p><i class="fas fa-user-tie"></i> <strong>Professor:</strong> ${ag.professor}</p>
                             <p><i class="fas fa-play-circle"></i> <strong>Início:</strong> ${inicio}</p>
                             <p><i class="fas fa-stop-circle"></i> <strong>Término:</strong> ${fim}</p>
+                            <p><i class="fas fa-info-circle"></i> <strong>Status:</strong> ${statusText}</p>
+                            ${!modoOnline ? '<p><i class="fas fa-desktop"></i> <strong>Modo:</strong> Local</p>' : ''}
                         </div>
                         <div class="agendamento-actions">
                             <button class="btn btn-small btn-delete" onclick="deletarAgendamento(${ag.id})">
@@ -384,6 +593,7 @@
                     </div>
                 `;
             });
+            
             html += '</div>';
             container.innerHTML = html;
         }
@@ -394,74 +604,175 @@
             const inicio = document.getElementById('inicio').value;
             const fim = document.getElementById('fim').value;
 
+            // Validações
             if (!sala || !professor || !inicio || !fim) {
-                alert('❌ Preencha todos os campos!');
+                mostrarMensagem('❌ Preencha todos os campos!', 'error');
                 return;
             }
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        acao: "add", 
-                        sala, 
-                        professor, 
-                        inicio, 
-                        fim 
-                    })
-                });
-                
-                const resultado = await response.json();
-                if (resultado.status === "sucesso") {
-                    alert('✅ Adicionado com sucesso!');
-                    carregarAgendamentos();
-                    
-                    // Limpar formulário
-                    document.getElementById('sala').value = '';
-                    document.getElementById('professor').value = '';
-                    document.getElementById('inicio').value = '';
-                    document.getElementById('fim').value = '';
-                }
-            } catch (error) {
-                alert('❌ Erro ao adicionar: ' + error.message);
+            if (new Date(inicio) >= new Date(fim)) {
+                mostrarMensagem('❌ O término deve ser posterior ao início!', 'error');
+                return;
             }
+
+            if (modoOnline) {
+                // Modo Online - Google Sheets
+                try {
+                    const btn = event.target;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                    btn.disabled = true;
+
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            acao: "add",
+                            sala: sala,
+                            professor: professor,
+                            inicio: inicio,
+                            fim: fim
+                        })
+                    });
+
+                    const resultado = await response.json();
+                    
+                    if (resultado.status === "sucesso") {
+                        mostrarMensagem('✅ Agendamento adicionado com sucesso! Todos podem ver agora.', 'success');
+                        limparFormulario();
+                        setTimeout(() => carregarAgendamentos(), 1000);
+                    } else {
+                        throw new Error(resultado.error || 'Erro desconhecido');
+                    }
+                    
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    
+                } catch (error) {
+                    console.error('Erro ao adicionar online:', error);
+                    mostrarMensagem('❌ Erro ao conectar com Google Sheets. Salvando localmente...', 'error');
+                    
+                    // Fallback para local
+                    modoOnline = false;
+                    adicionarAgendamentoLocal(sala, professor, inicio, fim);
+                    
+                    const btn = event.target;
+                    btn.innerHTML = '<i class="fas fa-calendar-plus"></i> Agendar Sala';
+                    btn.disabled = false;
+                }
+            } else {
+                // Modo Local
+                adicionarAgendamentoLocal(sala, professor, inicio, fim);
+            }
+        }
+
+        function adicionarAgendamentoLocal(sala, professor, inicio, fim) {
+            const novoAgendamento = {
+                id: Date.now(),
+                sala: sala,
+                professor: professor,
+                inicio: inicio,
+                fim: fim
+            };
+
+            agendamentos.push(novoAgendamento);
+            salvarAgendamentosLocal();
+            mostrarMensagem('✅ Agendamento adicionado (modo local)!', 'success');
+            limparFormulario();
+            mostrarAgendamentos();
         }
 
         async function deletarAgendamento(id) {
-            if (!confirm('Excluir agendamento?')) return;
+            if (!confirm('⚠️ Tem certeza que deseja excluir este agendamento?')) {
+                return;
+            }
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ acao: "delete", id: id })
-                });
-                carregarAgendamentos();
-            } catch (error) {
-                alert('Erro ao excluir: ' + error.message);
+            if (modoOnline) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            acao: "delete",
+                            id: id
+                        })
+                    });
+
+                    const resultado = await response.json();
+                    
+                    if (resultado.status === "sucesso") {
+                        mostrarMensagem('✅ Agendamento excluído!', 'success');
+                        setTimeout(() => carregarAgendamentos(), 1000);
+                    } else {
+                        throw new Error(resultado.error || 'Erro desconhecido');
+                    }
+                } catch (error) {
+                    console.error('Erro ao excluir online:', error);
+                    mostrarMensagem('❌ Erro ao excluir. Alternando para modo local...', 'error');
+                    modoOnline = false;
+                    deletarAgendamentoLocal(id);
+                }
+            } else {
+                deletarAgendamentoLocal(id);
             }
         }
 
-        function formatarData(dataString) {
-            const data = new Date(dataString);
-            return data.toLocaleString('pt-BR');
+        function deletarAgendamentoLocal(id) {
+            agendamentos = agendamentos.filter(ag => ag.id !== id);
+            salvarAgendamentosLocal();
+            mostrarMensagem('✅ Agendamento excluído (modo local)!', 'success');
+            mostrarAgendamentos();
         }
 
-        // Iniciar automaticamente com Proxy 1
-        document.addEventListener('DOMContentLoaded', function() {
-            const agora = new Date();
-            const dataMinima = agora.toISOString().slice(0, 16);
-            document.getElementById('inicio').min = dataMinima;
-            document.getElementById('fim').min = dataMinima;
-            
-            // Iniciar com Proxy 1 (AllOrigins)
-            setTimeout(() => usarProxy('allorigins'), 1000);
-        });
+        function limparFormulario() {
+            document.getElementById('sala').value = '';
+            document.getElementById('professor').value = '';
+            document.getElementById('inicio').value = '';
+            document.getElementById('fim').value = '';
+        }
 
-        // Auto-atualizar a cada 30 segundos
+        function formatarData(dataString) {
+            if (!dataString) return 'Data inválida';
+            const data = new Date(dataString);
+            return data.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function mostrarMensagem(mensagem, tipo) {
+            const mensagensAntigas = document.querySelectorAll('.success-message, .error-message');
+            mensagensAntigas.forEach(msg => msg.remove());
+            
+            const mensagemDiv = document.createElement('div');
+            mensagemDiv.className = tipo === 'error' ? 'error-message' : 'success-message';
+            
+            mensagemDiv.innerHTML = `
+                <i class="fas fa-${tipo === 'error' ? 'exclamation-triangle' : 'check'}"></i>
+                ${mensagem}
+            `;
+            
+            document.querySelector('.form-section').appendChild(mensagemDiv);
+            
+            setTimeout(() => {
+                if (mensagemDiv.parentElement) {
+                    mensagemDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // 🔄 AUTO-ATUALIZAÇÃO (apenas no modo online)
         setInterval(() => {
-            if (API_URL) carregarAgendamentos();
+            if (modoOnline) {
+                carregarAgendamentos();
+            }
         }, 30000);
     </script>
 </body>
