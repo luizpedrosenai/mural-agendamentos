@@ -233,6 +233,41 @@
             border: 1px solid #f5c6cb;
         }
 
+        .demo-notice {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            border: 1px solid #ffeaa7;
+        }
+
+        .config-section {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .config-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .config-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .config-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -249,6 +284,10 @@
             .main-content {
                 padding: 20px;
             }
+            
+            .config-input {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -256,13 +295,37 @@
     <div class="container">
         <header>
             <h1>🎓 Sistema de Agendamento</h1>
-            <p>Conectado com Google Sheets - SENAI</p>
+            <p>Sistema de agendamento de salas - SENAI</p>
         </header>
 
         <div class="main-content">
             <!-- Status da API -->
             <div id="api-status" class="api-status" style="display: none;">
                 🔄 Conectando com Google Sheets...
+            </div>
+
+            <!-- Aviso de demonstração -->
+            <div class="demo-notice">
+                ⚠️ <strong>Modo de Demonstração</strong> - Os dados são armazenados localmente no navegador.
+                Para conectar com o Google Sheets, configure a URL do Google Apps Script abaixo.
+            </div>
+
+            <!-- Seção de configuração -->
+            <div class="config-section">
+                <h3>🔧 Configuração do Google Apps Script</h3>
+                <div class="config-input">
+                    <input type="text" id="script-url" placeholder="Cole aqui a URL do seu Google Apps Script">
+                    <button class="btn" onclick="salvarConfiguracao()">Salvar URL</button>
+                </div>
+                <p style="font-size: 0.9em; color: #666;">
+                    Para obter a URL: 
+                    <ol style="margin-left: 20px; font-size: 0.9em; color: #666;">
+                        <li>Abra seu Google Apps Script</li>
+                        <li>Clique em "Implantar" > "Nova implantação"</li>
+                        <li>Selecione "Aplicativo Web" e configure "Executar como: Eu" e "Quem tem acesso: Qualquer pessoa"</li>
+                        <li>Copie a URL fornecida e cole acima</li>
+                    </ol>
+                </p>
             </div>
 
             <section class="form-section">
@@ -299,10 +362,10 @@
                     </div>
                 </div>
                 <button class="btn btn-success" onclick="adicionarAgendamento()">
-                    💾 Salvar na Planilha
+                    💾 Salvar Agendamento
                 </button>
-                <button class="btn" onclick="abrirPlanilha()" style="margin-left: 10px;">
-                    📊 Ver Planilha
+                <button class="btn" onclick="alternarModo()" id="modo-btn" style="margin-left: 10px;">
+                    🔄 Alternar para Google Sheets
                 </button>
             </section>
 
@@ -316,7 +379,7 @@
                 <div id="agendamentos-container">
                     <div class="loading">
                         <div class="loading-spinner"></div>
-                        <p>Conectando com Google Sheets...</p>
+                        <p>Carregando agendamentos...</p>
                     </div>
                 </div>
             </section>
@@ -324,15 +387,20 @@
     </div>
 
     <script>
-        // ✅ URL DO SEU GOOGLE APPS SCRIPT - SUBSTITUA PELA SUA URL
-        const API_URL = "https://script.google.com/macros/s/AKfycbwJqwGO6h70l73-SyFjkUNj0r-3WjnHzbq5SGeB5BGMi8c90_hw9cE4I-N3J6SseBC5SQ/exec";
+        // Configurações
+        let usarGoogleSheets = false;
+        let API_URL = "";
         const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1EMt_TECPbkYBtQM1_SVu2P-fa-Og9rynwoL2HdHSbAs/edit";
-
+        
+        // Dados de exemplo (serão salvos no localStorage)
         let agendamentos = [];
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Iniciando sistema online...');
+            console.log('🚀 Iniciando sistema...');
+            
+            // Carregar configurações salvas
+            carregarConfiguracao();
             
             // Configurar data mínima como hoje
             const hoje = new Date().toISOString().split('T')[0];
@@ -347,58 +415,56 @@
             document.getElementById('horaInicio').value = inicioPadrao.toTimeString().slice(0, 5);
             document.getElementById('horaFim').value = fimPadrao.toTimeString().slice(0, 5);
             
-            // Testar conexão primeiro
-            testarConexao().then(sucesso => {
-                if (sucesso) {
-                    carregarAgendamentos();
-                }
-            });
+            // Carregar dados iniciais
+            carregarAgendamentos();
         });
 
-        // Função para testar conexão com a API
-        async function testarConexao() {
-            const statusDiv = document.getElementById('api-status');
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'api-status api-online';
-            statusDiv.innerHTML = '🧪 Testando conexão com Google Sheets...';
+        // Funções de configuração
+        function carregarConfiguracao() {
+            const urlSalva = localStorage.getItem('googleScriptURL');
+            if (urlSalva) {
+                document.getElementById('script-url').value = urlSalva;
+                API_URL = urlSalva;
+            }
             
-            try {
-                console.log('🧪 Testando conexão com:', API_URL);
-                const response = await fetch(API_URL);
+            const modoSalvo = localStorage.getItem('usarGoogleSheets');
+            usarGoogleSheets = modoSalvo === 'true';
+            atualizarBotaoModo();
+        }
+
+        function salvarConfiguracao() {
+            const url = document.getElementById('script-url').value.trim();
+            if (url) {
+                API_URL = url;
+                localStorage.setItem('googleScriptURL', url);
+                alert('✅ URL salva com sucesso!');
                 
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('✅ Conexão bem-sucedida:', data);
-                
-                statusDiv.className = 'api-status api-online';
-                statusDiv.innerHTML = '✅ Conexão estabelecida com Google Sheets';
-                
-                return true;
-            } catch (error) {
-                console.error('❌ Falha na conexão:', error);
-                statusDiv.className = 'api-status api-offline';
-                statusDiv.innerHTML = '❌ Erro de conexão com Google Sheets';
-                
-                const container = document.getElementById('agendamentos-container');
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div style="font-size: 3em; margin-bottom: 20px;">❌</div>
-                        <h3>Erro de Conexão</h3>
-                        <p>Não foi possível conectar com o Google Sheets.</p>
-                        <p><em>${error.message}</em></p>
-                        <button class="btn" onclick="testarConexao().then(s => s && carregarAgendamentos())" style="margin-top: 20px;">
-                            🔄 Tentar Novamente
-                        </button>
-                    </div>
-                `;
-                
-                return false;
+                // Testar a conexão
+                testarConexao();
+            } else {
+                alert('❌ Por favor, insira uma URL válida.');
             }
         }
 
+        function alternarModo() {
+            usarGoogleSheets = !usarGoogleSheets;
+            localStorage.setItem('usarGoogleSheets', usarGoogleSheets.toString());
+            atualizarBotaoModo();
+            carregarAgendamentos();
+        }
+
+        function atualizarBotaoModo() {
+            const botao = document.getElementById('modo-btn');
+            if (usarGoogleSheets) {
+                botao.textContent = '🔄 Alternar para Modo Local';
+                botao.className = 'btn btn-danger';
+            } else {
+                botao.textContent = '🔄 Alternar para Google Sheets';
+                botao.className = 'btn';
+            }
+        }
+
+        // Funções principais
         async function carregarAgendamentos() {
             const container = document.getElementById('agendamentos-container');
             const statusDiv = document.getElementById('api-status');
@@ -406,48 +472,180 @@
             container.innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    <p>Carregando agendamentos do Google Sheets...</p>
+                    <p>Carregando agendamentos...</p>
                 </div>
             `;
             
-            try {
-                console.log('📡 Conectando com Google Sheets...');
-                statusDiv.style.display = 'block';
-                statusDiv.className = 'api-status api-online';
-                statusDiv.innerHTML = '🔄 Conectando com Google Sheets...';
-                
-                const response = await fetch(API_URL);
-                
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
+            if (usarGoogleSheets && API_URL) {
+                // Modo Google Sheets
+                try {
+                    console.log('📡 Conectando com Google Sheets...');
+                    statusDiv.style.display = 'block';
+                    statusDiv.className = 'api-status api-online';
+                    statusDiv.innerHTML = '🔄 Conectando com Google Sheets...';
+                    
+                    const response = await fetch(API_URL);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    agendamentos = Array.isArray(data) ? data : [];
+                    console.log(`✅ ${agendamentos.length} agendamentos carregados do Google Sheets`);
+                    
+                    statusDiv.className = 'api-status api-online';
+                    statusDiv.innerHTML = `✅ Conectado - ${agendamentos.length} agendamentos carregados`;
+                    
+                    exibirAgendamentos(agendamentos);
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao carregar do Google Sheets:', error);
+                    statusDiv.className = 'api-status api-offline';
+                    statusDiv.innerHTML = '❌ Erro de conexão com Google Sheets';
+                    
+                    // Voltar para modo local em caso de erro
+                    usarGoogleSheets = false;
+                    atualizarBotaoModo();
+                    
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 3em; margin-bottom: 20px;">❌</div>
+                            <h3>Erro de Conexão</h3>
+                            <p>Não foi possível conectar com o Google Sheets.</p>
+                            <p><em>${error.message}</em></p>
+                            <p>Alternando para modo local...</p>
+                            <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
+                                🔄 Tentar Novamente
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Carregar dados locais após um breve delay
+                    setTimeout(() => {
+                        carregarDadosLocais();
+                        exibirAgendamentos(agendamentos);
+                    }, 2000);
                 }
-                
-                const data = await response.json();
-                agendamentos = Array.isArray(data) ? data : [];
-                console.log(`✅ ${agendamentos.length} agendamentos carregados`);
-                
-                statusDiv.className = 'api-status api-online';
-                statusDiv.innerHTML = `✅ Conectado - ${agendamentos.length} agendamentos carregados`;
-                
+            } else {
+                // Modo local
+                statusDiv.style.display = 'none';
+                carregarDadosLocais();
                 exibirAgendamentos(agendamentos);
-                
-            } catch (error) {
-                console.error('❌ Erro ao carregar:', error);
-                statusDiv.className = 'api-status api-offline';
-                statusDiv.innerHTML = '❌ Erro de conexão com Google Sheets';
-                
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div style="font-size: 3em; margin-bottom: 20px;">❌</div>
-                        <h3>Erro de Conexão</h3>
-                        <p>Não foi possível conectar com o Google Sheets.</p>
-                        <p><em>${error.message}</em></p>
-                        <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
-                            🔄 Tentar Novamente
-                        </button>
-                    </div>
-                `;
             }
+        }
+
+        function carregarDadosLocais() {
+            const dadosSalvos = localStorage.getItem('agendamentosLocais');
+            if (dadosSalvos) {
+                agendamentos = JSON.parse(dadosSalvos);
+                console.log(`📁 ${agendamentos.length} agendamentos carregados do armazenamento local`);
+            } else {
+                // Dados de exemplo iniciais
+                agendamentos = [
+                    {
+                        id: 1,
+                        sala: "Sala 1",
+                        professor: "Prof. Silva",
+                        inicio: "2023-11-15T09:00",
+                        fim: "2023-11-15T11:00"
+                    },
+                    {
+                        id: 2,
+                        sala: "Laboratório 1",
+                        professor: "Prof. Oliveira",
+                        inicio: "2023-11-15T14:00",
+                        fim: "2023-11-15T16:00"
+                    }
+                ];
+                salvarDadosLocais();
+                console.log("📁 Dados de exemplo criados e salvos localmente");
+            }
+        }
+
+        function salvarDadosLocais() {
+            localStorage.setItem('agendamentosLocais', JSON.stringify(agendamentos));
+        }
+
+        async function adicionarAgendamento() {
+            const sala = document.getElementById('sala').value;
+            const professor = document.getElementById('professor').value;
+            const data = document.getElementById('data').value;
+            const horaInicio = document.getElementById('horaInicio').value;
+            const horaFim = document.getElementById('horaFim').value;
+
+            // Validações
+            if (!sala || !professor || !data || !horaInicio || !horaFim) {
+                alert('❌ Por favor, preencha todos os campos!');
+                return;
+            }
+
+            if (horaInicio >= horaFim) {
+                alert('❌ A hora de término deve ser posterior à hora de início!');
+                return;
+            }
+
+            // Combinar data e hora
+            const inicioISO = `${data}T${horaInicio}`;
+            const fimISO = `${data}T${horaFim}`;
+
+            const novoAgendamento = {
+                id: Date.now(), // ID único baseado no timestamp
+                sala: sala,
+                professor: professor,
+                inicio: inicioISO,
+                fim: fimISO
+            };
+
+            const statusDiv = document.getElementById('api-status');
+            
+            if (usarGoogleSheets && API_URL) {
+                // Salvar no Google Sheets
+                try {
+                    statusDiv.style.display = 'block';
+                    statusDiv.className = 'api-status api-online';
+                    statusDiv.innerHTML = '💾 Salvando na planilha...';
+
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(novoAgendamento)
+                    });
+
+                    const resultado = await response.json();
+                    
+                    if (resultado.status === "sucesso") {
+                        statusDiv.innerHTML = '✅ Agendamento salvo na planilha!';
+                        alert('✅ Agendamento salvo com sucesso!');
+                        
+                        // Recarregar lista
+                        setTimeout(() => {
+                            carregarAgendamentos();
+                        }, 2000);
+                        
+                    } else {
+                        throw new Error(resultado.error || 'Erro desconhecido');
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao salvar no Google Sheets:', error);
+                    statusDiv.className = 'api-status api-offline';
+                    statusDiv.innerHTML = '❌ Erro ao salvar na planilha';
+                    alert('❌ Erro ao salvar: ' + error.message);
+                }
+            } else {
+                // Salvar localmente
+                agendamentos.push(novoAgendamento);
+                salvarDadosLocais();
+                alert('✅ Agendamento salvo localmente!');
+                exibirAgendamentos(agendamentos);
+            }
+            
+            // Limpar formulário
+            document.getElementById('sala').value = '';
+            document.getElementById('professor').value = '';
         }
 
         function exibirAgendamentos(agendamentos) {
@@ -458,7 +656,7 @@
                     <div class="empty-state">
                         <div style="font-size: 3em; margin-bottom: 20px;">📭</div>
                         <h3>Nenhum agendamento</h3>
-                        <p>A planilha está vazia. Adicione o primeiro agendamento!</p>
+                        <p>${usarGoogleSheets ? 'A planilha está vazia.' : 'Nenhum agendamento local.'} Adicione o primeiro agendamento!</p>
                     </div>
                 `;
                 return;
@@ -498,10 +696,7 @@
                             <p><strong>Status:</strong> ${statusText}</p>
                         </div>
                         <div class="agendamento-actions">
-                            <button class="btn btn-small" onclick="abrirPlanilha()">
-                                📝 Editar
-                            </button>
-                            <button class="btn btn-small btn-danger" onclick="solicitarExclusao(${ag.id})">
+                            <button class="btn btn-small btn-danger" onclick="excluirAgendamento(${ag.id})">
                                 🗑️ Excluir
                             </button>
                         </div>
@@ -513,107 +708,50 @@
             container.innerHTML = html;
         }
 
-        async function adicionarAgendamento() {
-            const sala = document.getElementById('sala').value;
-            const professor = document.getElementById('professor').value;
-            const data = document.getElementById('data').value;
-            const horaInicio = document.getElementById('horaInicio').value;
-            const horaFim = document.getElementById('horaFim').value;
-
-            // Validações
-            if (!sala || !professor || !data || !horaInicio || !horaFim) {
-                alert('❌ Por favor, preencha todos os campos!');
-                return;
+        function excluirAgendamento(id) {
+            if (confirm('Tem certeza que deseja excluir este agendamento?')) {
+                if (usarGoogleSheets) {
+                    alert('Para excluir agendamentos do Google Sheets, abra a planilha diretamente.');
+                    window.open(PLANILHA_URL, '_blank');
+                } else {
+                    agendamentos = agendamentos.filter(ag => ag.id !== id);
+                    salvarDadosLocais();
+                    exibirAgendamentos(agendamentos);
+                    alert('Agendamento excluído com sucesso!');
+                }
             }
+        }
 
-            if (horaInicio >= horaFim) {
-                alert('❌ A hora de término deve ser posterior à hora de início!');
-                return;
-            }
-
-            // Combinar data e hora
-            const inicioISO = `${data}T${horaInicio}`;
-            const fimISO = `${data}T${horaFim}`;
-
-            const novoAgendamento = {
-                sala: sala,
-                professor: professor,
-                inicio: inicioISO,
-                fim: fimISO
-            };
-
+        async function testarConexao() {
             const statusDiv = document.getElementById('api-status');
+            if (!API_URL) {
+                alert('Por favor, configure a URL do Google Apps Script primeiro.');
+                return;
+            }
+            
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'api-status api-online';
+            statusDiv.innerHTML = '🧪 Testando conexão...';
             
             try {
-                statusDiv.style.display = 'block';
-                statusDiv.className = 'api-status api-online';
-                statusDiv.innerHTML = '💾 Salvando na planilha...';
-
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(novoAgendamento)
-                });
-
-                const resultado = await response.json();
-                
-                if (resultado.status === "sucesso") {
-                    statusDiv.innerHTML = '✅ Agendamento salvo na planilha!';
-                    alert('✅ Agendamento salvo com sucesso!');
-                    
-                    // Limpar formulário
-                    document.getElementById('sala').value = '';
-                    document.getElementById('professor').value = '';
-                    
-                    // Recarregar lista após 2 segundos
+                const response = await fetch(API_URL);
+                if (response.ok) {
+                    statusDiv.innerHTML = '✅ Conexão bem-sucedida com Google Sheets!';
                     setTimeout(() => {
-                        carregarAgendamentos();
-                    }, 2000);
-                    
+                        statusDiv.style.display = 'none';
+                    }, 3000);
                 } else {
-                    throw new Error(resultado.error || 'Erro desconhecido');
+                    throw new Error(`Erro HTTP: ${response.status}`);
                 }
-                
             } catch (error) {
-                console.error('Erro ao salvar:', error);
                 statusDiv.className = 'api-status api-offline';
-                statusDiv.innerHTML = '❌ Erro ao salvar na planilha';
-                alert('❌ Erro ao salvar: ' + error.message);
+                statusDiv.innerHTML = '❌ Falha na conexão: ' + error.message;
             }
-        }
-
-        function solicitarExclusao(id) {
-            if (confirm('🗑️ Para excluir este agendamento:\n\n1. Clique em "OK" para abrir a planilha\n2. Encontre e delete a linha correspondente\n3. Volte aqui e clique em "Atualizar"\n\nAbrir planilha agora?')) {
-                abrirPlanilha();
-            }
-        }
-
-        function abrirPlanilha() {
-            window.open(PLANILHA_URL, '_blank');
         }
 
         function formatarData(dataString) {
             try {
-                // Tenta converter para Date
-                let data = new Date(dataString);
-                
-                // Se não for válida, tenta outros formatos
-                if (isNaN(data.getTime())) {
-                    // Tenta formato "YYYY-MM-DD HH:MM"
-                    const [datePart, timePart] = dataString.split(' ');
-                    if (datePart && timePart) {
-                        const [year, month, day] = datePart.split('-');
-                        const [hours, minutes] = timePart.split(':');
-                        data = new Date(year, month - 1, day, hours, minutes);
-                    }
-                }
-                
-                if (isNaN(data.getTime())) {
-                    return dataString; // Retorna original se não conseguir converter
-                }
-                
+                const data = new Date(dataString);
                 return data.toLocaleString('pt-BR', {
                     day: '2-digit',
                     month: '2-digit',
