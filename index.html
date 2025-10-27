@@ -324,7 +324,7 @@
     </div>
 
     <script>
-        // ✅ URL DO SEU GOOGLE APPS SCRIPT
+        // ✅ URL DO SEU GOOGLE APPS SCRIPT - SUBSTITUA PELA SUA URL
         const API_URL = "https://script.google.com/macros/s/AKfycbwJqwGO6h70l73-SyFjkUNj0r-3WjnHzbq5SGeB5BGMi8c90_hw9cE4I-N3J6SseBC5SQ/exec";
         const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1EMt_TECPbkYBtQM1_SVu2P-fa-Og9rynwoL2HdHSbAs/edit";
 
@@ -347,8 +347,57 @@
             document.getElementById('horaInicio').value = inicioPadrao.toTimeString().slice(0, 5);
             document.getElementById('horaFim').value = fimPadrao.toTimeString().slice(0, 5);
             
-            carregarAgendamentos();
+            // Testar conexão primeiro
+            testarConexao().then(sucesso => {
+                if (sucesso) {
+                    carregarAgendamentos();
+                }
+            });
         });
+
+        // Função para testar conexão com a API
+        async function testarConexao() {
+            const statusDiv = document.getElementById('api-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'api-status api-online';
+            statusDiv.innerHTML = '🧪 Testando conexão com Google Sheets...';
+            
+            try {
+                console.log('🧪 Testando conexão com:', API_URL);
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Conexão bem-sucedida:', data);
+                
+                statusDiv.className = 'api-status api-online';
+                statusDiv.innerHTML = '✅ Conexão estabelecida com Google Sheets';
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Falha na conexão:', error);
+                statusDiv.className = 'api-status api-offline';
+                statusDiv.innerHTML = '❌ Erro de conexão com Google Sheets';
+                
+                const container = document.getElementById('agendamentos-container');
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 3em; margin-bottom: 20px;">❌</div>
+                        <h3>Erro de Conexão</h3>
+                        <p>Não foi possível conectar com o Google Sheets.</p>
+                        <p><em>${error.message}</em></p>
+                        <button class="btn" onclick="testarConexao().then(s => s && carregarAgendamentos())" style="margin-top: 20px;">
+                            🔄 Tentar Novamente
+                        </button>
+                    </div>
+                `;
+                
+                return false;
+            }
+        }
 
         async function carregarAgendamentos() {
             const container = document.getElementById('agendamentos-container');
