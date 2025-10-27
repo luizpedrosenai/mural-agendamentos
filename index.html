@@ -1,583 +1,219 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mural de Agendamentos - SENAI</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --info: #4895ef;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --background: #f5f7fb;
-            --card: #ffffff;
-            --text: #2b2d42;
-            --text-light: #8d99ae;
-        }
-
-        body {
-            background: var(--background);
-            color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 20px;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(67, 97, 238, 0.1) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(58, 12, 163, 0.1) 0px, transparent 50%);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-            transform: rotate(30deg);
-        }
-
-        header h1 {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-            position: relative;
-        }
-
-        header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            position: relative;
-        }
-
-        .card {
-            background: var(--card);
-            border-radius: 18px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            padding: 30px;
-            margin-bottom: 30px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.03);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-title i {
-            font-size: 1.8rem;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 28px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), var(--info));
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning), #f3722c);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .status {
-            padding: 18px;
-            border-radius: 12px;
-            margin: 20px 0;
-            text-align: center;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .status.loading {
-            background: rgba(67, 97, 238, 0.1);
-            color: var(--primary);
-            border-left: 5px solid var(--primary);
-        }
-
-        .status.success {
-            background: rgba(76, 201, 240, 0.1);
-            color: var(--success);
-            border-left: 5px solid var(--success);
-        }
-
-        .status.error {
-            background: rgba(247, 37, 133, 0.1);
-            color: var(--danger);
-            border-left: 5px solid var(--danger);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: var(--card);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        thead {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        th {
-            padding: 18px 15px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        tbody tr {
-            transition: background 0.3s ease;
-        }
-
-        tbody tr:hover {
-            background: rgba(67, 97, 238, 0.03);
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .last-update {
-            text-align: center;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .demo-notice {
-            background: rgba(248, 150, 30, 0.1);
-            border: 1px solid rgba(248, 150, 30, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .demo-notice h4 {
-            color: var(--warning);
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2.2rem;
-            }
-
-            .card {
-                padding: 20px;
-            }
-
-            .btn {
-                padding: 12px 20px;
-                font-size: 0.9rem;
-            }
-
-            th, td {
-                padding: 12px 10px;
-            }
-
-            table {
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            header h1 {
-                font-size: 1.8rem;
-            }
-
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(67, 97, 238, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendamentos SENAI</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container { 
+      background: white; 
+      padding: 30px; 
+      border-radius: 10px; 
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin: 20px 0; 
+    }
+    th, td { 
+      padding: 12px; 
+      text-align: left; 
+      border-bottom: 1px solid #ddd; 
+    }
+    th { 
+      background: #2c3e50; 
+      color: white; 
+    }
+    .btn {
+      background: #3498db;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .form-group {
+      margin: 10px 0;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-calendar-alt"></i> Mural de Agendamentos</h1>
-            <p>Sistema de gerenciamento de salas e professores - SENAI</p>
-        </header>
-
-        <div class="card">
-            <div class="controls">
-                <button class="btn btn-primary" onclick="carregarDados()">
-                    <i class="fas fa-sync-alt"></i> Atualizar Dados
-                </button>
-                <button class="btn btn-success" onclick="abrirPlanilha()">
-                    <i class="fas fa-table"></i> Abrir Planilha
-                </button>
-                <button class="btn btn-warning" onclick="testarAPI()">
-                    <i class="fas fa-vial"></i> Testar API
-                </button>
-            </div>
-
-            <div id="status" class="status loading">
-                <i class="fas fa-spinner fa-spin"></i> Clique em "Atualizar Dados" para carregar as informações
-            </div>
-
-            <div id="dados-container" class="fade-in">
-                <!-- Os dados serão carregados aqui -->
-            </div>
-
-            <div class="last-update">
-                <i class="far fa-clock"></i> Última atualização: <span id="last-update">-</span>
-            </div>
-        </div>
+  <div class="container">
+    <h1>📅 Mural de Agendamentos SENAI</h1>
+    
+    <!-- Formulário para novo agendamento -->
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h3>➕ Novo Agendamento</h3>
+      <div class="form-group">
+        <label>Sala:</label>
+        <input type="text" id="sala" placeholder="Ex: Sala 1">
+      </div>
+      <div class="form-group">
+        <label>Professor:</label>
+        <input type="text" id="professor" placeholder="Nome do professor">
+      </div>
+      <div class="form-group">
+        <label>Início:</label>
+        <input type="datetime-local" id="inicio">
+      </div>
+      <div class="form-group">
+        <label>Fim:</label>
+        <input type="datetime-local" id="fim">
+      </div>
+      <button class="btn" onclick="adicionarAgendamento()">💾 Salvar Agendamento</button>
     </div>
 
-    <script>
-        // URL do seu Web App do Google Apps Script
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJqwGO6h70l73-SyFjkUNj0r-3WjnHzbq5SGeB5BGMi8c90_hw9cE4I-N3J6SseBC5SQ/exec";
-        const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1EMt_TECPbkYBtQM1_SVu2P-fa-Og9rynwoL2HdHSbAs/edit";
+    <button class="btn" onclick="carregarDados()">🔄 Atualizar Agendamentos</button>
+    
+    <div id="status" style="margin: 15px 0; padding: 10px; border-radius: 5px;"></div>
+    
+    <div id="dados"></div>
+  </div>
 
-        // Serviços proxy CORS gratuitos (fallbacks)
-        const CORS_PROXIES = [
-            "https://api.allorigins.win/raw?url=",
-            "https://cors-anywhere.herokuapp.com/",
-            "https://api.codetabs.com/v1/proxy?quest="
-        ];
+  <script>
+    function carregarDados() {
+      document.getElementById('status').innerHTML = '🔄 Carregando...';
+      document.getElementById('status').style.background = '#d1ecf1';
+      document.getElementById('status').style.color = '#0c5460';
+      
+      google.script.run
+        .withSuccessHandler(function(data) {
+          if (data.status === "success") {
+            exibirDados(data.data);
+            document.getElementById('status').innerHTML = `✅ ${data.message} - ${data.total} agendamentos`;
+            document.getElementById('status').style.background = '#d4edda';
+            document.getElementById('status').style.color = '#155724';
+          } else {
+            document.getElementById('status').innerHTML = `❌ Erro: ${data.message}`;
+            document.getElementById('status').style.background = '#f8d7da';
+            document.getElementById('status').style.color = '#721c24';
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('status').innerHTML = `❌ Erro: ${error.message}`;
+          document.getElementById('status').style.background = '#f8d7da';
+          document.getElementById('status').style.color = '#721c24';
+        })
+        .getDadosPlanilha();
+    }
 
-        let proxyIndex = 0;
-
-        async function carregarDados() {
-            const statusDiv = document.getElementById('status');
-            const container = document.getElementById('dados-container');
-            
-            statusDiv.className = 'status loading';
-            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando com a planilha...';
-            container.innerHTML = '';
-            
-            try {
-                console.log('Tentando carregar dados...');
-                
-                // Tenta cada proxy até um funcionar
-                const data = await tentarProxies();
-                
-                if (data && data.status === "success") {
-                    exibirDadosComSucesso(data);
-                } else {
-                    throw new Error('Resposta inválida da API');
-                }
-                
-            } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-                statusDiv.className = 'status error';
-                statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro de conexão: ${error.message}`;
-                
-                // Mostra dados de exemplo como fallback
-                usarDadosExemplo();
-            }
+    function exibirDados(dados) {
+      const dadosDiv = document.getElementById('dados');
+      
+      if (!dados || dados.length <= 1) {
+        dadosDiv.innerHTML = '<p>Nenhum agendamento encontrado.</p>';
+        return;
+      }
+      
+      let html = '<h3>Agendamentos Ativos:</h3>';
+      html += '<table>';
+      html += '<tr><th>Sala</th><th>Professor</th><th>Início</th><th>Fim</th></tr>';
+      
+      for (let i = 1; i < dados.length; i++) {
+        html += '<tr>';
+        html += `<td>${dados[i][0] || ''}</td>`;
+        html += `<td>${dados[i][1] || ''}</td>`;
+        
+        let inicio = dados[i][2] || '';
+        let fim = dados[i][3] || '';
+        
+        if (inicio) {
+          try {
+            inicio = new Date(inicio).toLocaleString('pt-BR');
+          } catch (e) {}
         }
-
-        async function tentarProxies() {
-            const statusDiv = document.getElementById('status');
-            
-            for (let i = 0; i < CORS_PROXIES.length; i++) {
-                const proxyUrl = CORS_PROXIES[i] + encodeURIComponent(WEB_APP_URL);
-                
-                statusDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Tentando conexão (método ${i + 1}/${CORS_PROXIES.length})...`;
-                
-                try {
-                    console.log(`Tentando proxy: ${CORS_PROXIES[i]}`);
-                    
-                    const response = await fetch(proxyUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('✅ Dados recebidos via proxy:', data);
-                        proxyIndex = i; // Salva o proxy que funcionou
-                        return data;
-                    }
-                } catch (error) {
-                    console.log(`Proxy ${i + 1} falhou:`, error);
-                    continue; // Tenta o próximo proxy
-                }
-            }
-            
-            throw new Error('Todos os métodos de conexão falharam');
+        
+        if (fim) {
+          try {
+            fim = new Date(fim).toLocaleString('pt-BR');
+          } catch (e) {}
         }
+        
+        html += `<td>${inicio}</td>`;
+        html += `<td>${fim}</td>`;
+        html += '</tr>';
+      }
+      
+      html += '</table>';
+      dadosDiv.innerHTML = html;
+    }
 
-        function exibirDadosComSucesso(data) {
-            const statusDiv = document.getElementById('status');
-            const container = document.getElementById('dados-container');
-            const lastUpdate = document.getElementById('last-update');
+    function adicionarAgendamento() {
+      const sala = document.getElementById('sala').value;
+      const professor = document.getElementById('professor').value;
+      const inicio = document.getElementById('inicio').value;
+      const fim = document.getElementById('fim').value;
+      
+      if (!sala || !professor || !inicio || !fim) {
+        alert('Preencha todos os campos!');
+        return;
+      }
+      
+      document.getElementById('status').innerHTML = '💾 Salvando...';
+      document.getElementById('status').style.background = '#d1ecf1';
+      document.getElementById('status').style.color = '#0c5460';
+      
+      google.script.run
+        .withSuccessHandler(function(data) {
+          if (data.status === "success") {
+            document.getElementById('status').innerHTML = `✅ ${data.message}`;
+            document.getElementById('status').style.background = '#d4edda';
+            document.getElementById('status').style.color = '#155724';
             
-            statusDiv.className = 'status success';
-            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message} - ${data.data.length - 1} agendamentos encontrados`;
+            // Limpa o formulário
+            document.getElementById('sala').value = '';
+            document.getElementById('professor').value = '';
+            document.getElementById('inicio').value = '';
+            document.getElementById('fim').value = '';
             
-            if (!data.data || data.data.length <= 1) {
-                container.innerHTML = '<div class="status">📭 Nenhum agendamento encontrado na planilha.</div>';
-                return;
-            }
-            
-            let html = '<h3 class="card-title"><i class="fas fa-list"></i> Agendamentos Ativos</h3>';
-            html += '<table>';
-            
-            // Cabeçalho
-            html += '<thead><tr>';
-            data.data[0].forEach(coluna => {
-                let nomeColuna = coluna;
-                // Melhora a legibilidade dos cabeçalhos
-                const traducoes = {
-                    'sala': '<i class="fas fa-door-open"></i> Sala',
-                    'professor': '<i class="fas fa-chalkboard-teacher"></i> Professor',
-                    'inicio': '<i class="fas fa-clock"></i> Início',
-                    'fim': '<i class="fas fa-hourglass-end"></i> Término'
-                };
-                
-                if (traducoes[coluna.toLowerCase()]) {
-                    nomeColuna = traducoes[coluna.toLowerCase()];
-                }
-                
-                html += `<th>${nomeColuna}</th>`;
-            });
-            html += '</tr></thead>';
-            
-            // Dados
-            html += '<tbody>';
-            for (let i = 1; i < data.data.length; i++) {
-                const linha = data.data[i];
-                html += '<tr>';
-                
-                linha.forEach((coluna, colIndex) => {
-                    let valor = coluna || '';
-                    
-                    // Formatação de datas
-                    if (typeof valor === 'string' && valor.includes('T') && valor.includes('Z')) {
-                        try {
-                            const dataObj = new Date(valor);
-                            if (!isNaN(dataObj.getTime())) {
-                                valor = dataObj.toLocaleString('pt-BR');
-                            }
-                        } catch (e) {
-                            // Mantém o valor original se não for data válida
-                        }
-                    }
-                    
-                    html += `<td>${valor}</td>`;
-                });
-                
-                html += '</tr>';
-            }
-            html += '</tbody></table>';
-            
-            container.innerHTML = html;
-            lastUpdate.textContent = new Date().toLocaleString('pt-BR');
-        }
-
-        function usarDadosExemplo() {
-            const container = document.getElementById('dados-container');
-            const lastUpdate = document.getElementById('last-update');
-            
-            container.innerHTML = `
-                <div class="demo-notice">
-                    <h4><i class="fas fa-info-circle"></i> Modo de Demonstração</h4>
-                    <p>Conectando via proxy CORS... Aqui estão seus dados reais da planilha:</p>
-                </div>
-                <h3 class="card-title"><i class="fas fa-list"></i> Agendamentos Ativos</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-door-open"></i> Sala</th>
-                            <th><i class="fas fa-chalkboard-teacher"></i> Professor</th>
-                            <th><i class="fas fa-clock"></i> Início</th>
-                            <th><i class="fas fa-hourglass-end"></i> Término</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Sala 1</td>
-                            <td>João</td>
-                            <td>24/10/2025 14:00:00</td>
-                            <td>24/10/2025 14:00:00</td>
-                        </tr>
-                        <tr>
-                            <td>SALA 2</td>
-                            <td>João</td>
-                            <td>24/10/2025 14:00:00</td>
-                            <td>24/10/2025 14:00:00</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="demo-notice">
-                    <p><i class="fas fa-lightbulb"></i> <strong>Dica:</strong> Sua API está funcionando! O problema é apenas entre GitHub Pages e Google.</p>
-                </div>
-            `;
-            
-            lastUpdate.textContent = new Date().toLocaleString('pt-BR') + ' (modo demonstração)';
-        }
-
-        async function testarAPI() {
-            const statusDiv = document.getElementById('status');
-            
-            statusDiv.className = 'status loading';
-            statusDiv.innerHTML = '<i class="fas fa-vial"></i> Testando conexão direta com a API...';
-            
-            try {
-                // Testa a URL diretamente em uma nova aba
-                window.open(WEB_APP_URL, '_blank');
-                
-                setTimeout(() => {
-                    statusDiv.className = 'status success';
-                    statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> API testada - Verifique a nova aba com os dados JSON';
-                }, 1000);
-                
-            } catch (error) {
-                statusDiv.className = 'status error';
-                statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro no teste da API';
-            }
-        }
-
-        function abrirPlanilha() {
-            window.open(PLANILHA_URL, '_blank');
-        }
-
-        // Inicialização automática
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Iniciando Mural de Agendamentos...');
+            // Recarrega os dados
             carregarDados();
-            
-            // Atualiza automaticamente a cada 1 minuto
-            setInterval(carregarDados, 60000);
-        });
+          } else {
+            document.getElementById('status').innerHTML = `❌ Erro: ${data.message}`;
+            document.getElementById('status').style.background = '#f8d7da';
+            document.getElementById('status').style.color = '#721c24';
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('status').innerHTML = `❌ Erro: ${error.message}`;
+          document.getElementById('status').style.background = '#f8d7da';
+          document.getElementById('status').style.color = '#721c24';
+        })
+        .adicionarAgendamento(sala, professor, inicio, fim);
+    }
 
-        // Atalho de teclado - F5 para atualizar
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F5') {
-                e.preventDefault();
-                carregarDados();
-            }
-        });
-    </script>
+    // Carrega os dados quando a página abre
+    document.addEventListener('DOMContentLoaded', function() {
+      carregarDados();
+      
+      // Define valores padrão para data/hora
+      const agora = new Date();
+      const inicio = new Date(agora.getTime() + 60 * 60 * 1000);
+      const fim = new Date(inicio.getTime() + 2 * 60 * 60 * 1000);
+      
+      document.getElementById('inicio').value = inicio.toISOString().slice(0, 16);
+      document.getElementById('fim').value = fim.toISOString().slice(0, 16);
+    });
+  </script>
 </body>
 </html>
