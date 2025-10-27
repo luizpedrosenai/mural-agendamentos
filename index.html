@@ -4,176 +4,354 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mural de Agendamentos - SENAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --background: #f5f7fb;
+            --card: #ffffff;
+            --text: #2b2d42;
+            --text-light: #8d99ae;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
             min-height: 100vh;
             padding: 20px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(67, 97, 238, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(58, 12, 163, 0.1) 0px, transparent 50%);
         }
-        
+
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        
-        .header {
+
+        header {
             text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .header h1 {
-            color: #2c3e50;
-            font-size: 2.2em;
-            margin-bottom: 8px;
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
         }
-        
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            position: relative;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            font-size: 1.8rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), var(--info));
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #f3722c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
         .status {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
+            padding: 18px;
+            border-radius: 12px;
+            margin: 20px 0;
             text-align: center;
-            font-weight: bold;
-            border-left: 4px solid;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        
-        .loading { 
-            background: #e3f2fd; 
-            color: #1565c0; 
-            border-left-color: #2196f3;
+
+        .status.loading {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            border-left: 5px solid var(--primary);
         }
-        
-        .success { 
-            background: #e8f5e9; 
-            color: #2e7d32; 
-            border-left-color: #4caf50;
+
+        .status.success {
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+            border-left: 5px solid var(--success);
         }
-        
-        .error { 
-            background: #ffebee; 
-            color: #c62828; 
-            border-left-color: #f44336;
+
+        .status.error {
+            background: rgba(247, 37, 133, 0.1);
+            color: var(--danger);
+            border-left: 5px solid var(--danger);
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            background: white;
-            border-radius: 8px;
+            background: var(--card);
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
-        
-        th {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+
+        thead {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 15px;
+        }
+
+        th {
+            padding: 18px 15px;
             text-align: left;
             font-weight: 600;
+            font-size: 1rem;
         }
-        
+
         td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #ecf0f1;
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
-        
-        tr:nth-child(even) {
-            background: #f8f9fa;
+
+        tbody tr {
+            transition: background 0.3s ease;
         }
-        
-        tr:hover {
-            background-color: #e3f2fd;
+
+        tbody tr:hover {
+            background: rgba(67, 97, 238, 0.03);
         }
-        
-        .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            margin: 5px;
-            transition: all 0.3s ease;
+
+        tbody tr:last-child td {
+            border-bottom: none;
         }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .controls {
-            text-align: center;
-            margin: 20px 0;
-        }
-        
+
         .last-update {
             text-align: center;
-            color: #7f8c8d;
-            font-size: 0.9em;
+            color: var(--text-light);
+            font-size: 0.9rem;
             margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #ecf0f1;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
-        
+
         .demo-notice {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
+            background: rgba(248, 150, 30, 0.1);
+            border: 1px solid rgba(248, 150, 30, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
             text-align: center;
+        }
+
+        .demo-notice h4 {
+            color: var(--warning);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 12px 10px;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(67, 97, 238, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>📅 Mural de Agendamentos - SENAI</h1>
-            <p>Sistema de gerenciamento de salas e professores</p>
-        </div>
-        
-        <div class="controls">
-            <button class="btn" onclick="carregarDados()">
-                🔄 Atualizar Dados
-            </button>
-            <button class="btn" onclick="abrirPlanilha()">
-                📊 Abrir Planilha
-            </button>
-            <button class="btn" onclick="testarAPI()">
-                🧪 Testar API
-            </button>
-        </div>
-        
-        <div id="status" class="status loading">
-            🔄 Iniciando conexão com a planilha...
-        </div>
-        
-        <div id="dados-container">
-            <!-- Os dados serão carregados aqui -->
-        </div>
-        
-        <div class="last-update">
-            Última atualização: <span id="last-update">-</span>
+        <header>
+            <h1><i class="fas fa-calendar-alt"></i> Mural de Agendamentos</h1>
+            <p>Sistema de gerenciamento de salas e professores - SENAI</p>
+        </header>
+
+        <div class="card">
+            <div class="controls">
+                <button class="btn btn-primary" onclick="carregarDados()">
+                    <i class="fas fa-sync-alt"></i> Atualizar Dados
+                </button>
+                <button class="btn btn-success" onclick="abrirPlanilha()">
+                    <i class="fas fa-table"></i> Abrir Planilha
+                </button>
+                <button class="btn btn-warning" onclick="testarAPI()">
+                    <i class="fas fa-vial"></i> Testar API
+                </button>
+            </div>
+
+            <div id="status" class="status loading">
+                <i class="fas fa-spinner fa-spin"></i> Clique em "Atualizar Dados" para carregar as informações
+            </div>
+
+            <div id="dados-container" class="fade-in">
+                <!-- Os dados serão carregados aqui -->
+            </div>
+
+            <div class="last-update">
+                <i class="far fa-clock"></i> Última atualização: <span id="last-update">-</span>
+            </div>
         </div>
     </div>
 
     <script>
-        // NOVA URL do seu Web App - Versão 8
+        // URL do seu Web App do Google Apps Script
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJqwGO6h70l73-SyFjkUNj0r-3WjnHzbq5SGeB5BGMi8c90_hw9cE4I-N3J6SseBC5SQ/exec";
         const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1EMt_TECPbkYBtQM1_SVu2P-fa-Og9rynwoL2HdHSbAs/edit";
 
@@ -191,7 +369,7 @@
             const container = document.getElementById('dados-container');
             
             statusDiv.className = 'status loading';
-            statusDiv.innerHTML = '🔄 Conectando com a planilha...';
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando com a planilha...';
             container.innerHTML = '';
             
             try {
@@ -209,7 +387,7 @@
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
                 statusDiv.className = 'status error';
-                statusDiv.innerHTML = `❌ Erro de conexão: ${error.message}`;
+                statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro de conexão: ${error.message}`;
                 
                 // Mostra dados de exemplo como fallback
                 usarDadosExemplo();
@@ -222,7 +400,7 @@
             for (let i = 0; i < CORS_PROXIES.length; i++) {
                 const proxyUrl = CORS_PROXIES[i] + encodeURIComponent(WEB_APP_URL);
                 
-                statusDiv.innerHTML = `🔄 Tentando conexão (método ${i + 1}/${CORS_PROXIES.length})...`;
+                statusDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Tentando conexão (método ${i + 1}/${CORS_PROXIES.length})...`;
                 
                 try {
                     console.log(`Tentando proxy: ${CORS_PROXIES[i]}`);
@@ -255,14 +433,14 @@
             const lastUpdate = document.getElementById('last-update');
             
             statusDiv.className = 'status success';
-            statusDiv.innerHTML = `✅ ${data.message} - ${data.data.length - 1} agendamentos encontrados`;
+            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message} - ${data.data.length - 1} agendamentos encontrados`;
             
             if (!data.data || data.data.length <= 1) {
                 container.innerHTML = '<div class="status">📭 Nenhum agendamento encontrado na planilha.</div>';
                 return;
             }
             
-            let html = '<h3 style="margin-bottom: 15px; color: #2c3e50;">📋 Agendamentos Ativos</h3>';
+            let html = '<h3 class="card-title"><i class="fas fa-list"></i> Agendamentos Ativos</h3>';
             html += '<table>';
             
             // Cabeçalho
@@ -271,10 +449,10 @@
                 let nomeColuna = coluna;
                 // Melhora a legibilidade dos cabeçalhos
                 const traducoes = {
-                    'sala': '🏫 Sala',
-                    'professor': '👨‍🏫 Professor',
-                    'inicio': '⏰ Início',
-                    'fim': '⏱️ Término'
+                    'sala': '<i class="fas fa-door-open"></i> Sala',
+                    'professor': '<i class="fas fa-chalkboard-teacher"></i> Professor',
+                    'inicio': '<i class="fas fa-clock"></i> Início',
+                    'fim': '<i class="fas fa-hourglass-end"></i> Término'
                 };
                 
                 if (traducoes[coluna.toLowerCase()]) {
@@ -323,16 +501,17 @@
             
             container.innerHTML = `
                 <div class="demo-notice">
-                    <h4>⚠️ Modo de Demonstração</h4>
+                    <h4><i class="fas fa-info-circle"></i> Modo de Demonstração</h4>
                     <p>Conectando via proxy CORS... Aqui estão seus dados reais da planilha:</p>
                 </div>
+                <h3 class="card-title"><i class="fas fa-list"></i> Agendamentos Ativos</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>🏫 Sala</th>
-                            <th>👨‍🏫 Professor</th>
-                            <th>⏰ Início</th>
-                            <th>⏱️ Término</th>
+                            <th><i class="fas fa-door-open"></i> Sala</th>
+                            <th><i class="fas fa-chalkboard-teacher"></i> Professor</th>
+                            <th><i class="fas fa-clock"></i> Início</th>
+                            <th><i class="fas fa-hourglass-end"></i> Término</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -351,7 +530,7 @@
                     </tbody>
                 </table>
                 <div class="demo-notice">
-                    <p><strong>💡 Dica:</strong> Sua API está funcionando! O problema é apenas entre GitHub Pages e Google.</p>
+                    <p><i class="fas fa-lightbulb"></i> <strong>Dica:</strong> Sua API está funcionando! O problema é apenas entre GitHub Pages e Google.</p>
                 </div>
             `;
             
@@ -362,7 +541,7 @@
             const statusDiv = document.getElementById('status');
             
             statusDiv.className = 'status loading';
-            statusDiv.innerHTML = '🧪 Testando conexão direta com a API...';
+            statusDiv.innerHTML = '<i class="fas fa-vial"></i> Testando conexão direta com a API...';
             
             try {
                 // Testa a URL diretamente em uma nova aba
@@ -370,12 +549,12 @@
                 
                 setTimeout(() => {
                     statusDiv.className = 'status success';
-                    statusDiv.innerHTML = '✅ API testada - Verifique a nova aba com os dados JSON';
+                    statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> API testada - Verifique a nova aba com os dados JSON';
                 }, 1000);
                 
             } catch (error) {
                 statusDiv.className = 'status error';
-                statusDiv.innerHTML = '❌ Erro no teste da API';
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro no teste da API';
             }
         }
 
