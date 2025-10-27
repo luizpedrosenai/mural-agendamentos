@@ -389,6 +389,14 @@
             gap: 10px;
             animation: fadeIn 0.5s ease-out;
         }
+
+        .proxy-selector {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -401,6 +409,18 @@
         </header>
 
         <div class="main-content">
+            <!-- Proxy Selector -->
+            <div class="proxy-selector">
+                <h3><i class="fas fa-network-wired"></i> Configuração de Conexão</h3>
+                <p>Selecionar método de conexão:</p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                    <button class="btn btn-small" onclick="usarProxy(1)">Proxy 1</button>
+                    <button class="btn btn-small" onclick="usarProxy(2)">Proxy 2</button>
+                    <button class="btn btn-small" onclick="usarProxy(3)">Proxy 3</button>
+                </div>
+                <p id="proxy-status" style="margin-top: 10px; font-size: 0.9em; color: #666;"></p>
+            </div>
+
             <!-- Stats -->
             <div class="stats-container" id="stats-container">
                 <div class="stat-card">
@@ -467,13 +487,32 @@
     </div>
 
     <script>
-        // ✅ URL CORRIGIDA COM CORS PROXY - RESOLVE "Failed to fetch"
-        const API_URL = "https://corsproxy.io/?https://script.google.com/macros/s/AKfycbzloXXj1cxN5w5__XQdSrmsGHPmdR1ndosygkBcTgTpdOvq_AS884pBusAlTLNt87C--g/exec";
+        // 🔧 MÚLTIPLAS OPÇÕES DE PROXY PARA CONEXÃO
+        const PROXY_OPTIONS = {
+            1: "https://api.allorigins.win/raw?url=",
+            2: "https://cors-anywhere.herokuapp.com/",
+            3: "https://thingproxy.freeboard.io/fetch/"
+        };
+
+        const URL_ORIGINAL = "https://script.google.com/macros/s/AKfycbzloXXj1cxN5w5__XQdSrmsGHPmdR1ndosygkBcTgTpdOvq_AS884pBusAlTLNt87C--g/exec";
+        
+        // Proxy padrão (inicia com o primeiro)
+        let API_URL = PROXY_OPTIONS[1] + encodeURIComponent(URL_ORIGINAL);
+
+        function usarProxy(numero) {
+            API_URL = PROXY_OPTIONS[numero] + encodeURIComponent(URL_ORIGINAL);
+            document.getElementById('proxy-status').innerHTML = 
+                `<i class="fas fa-check"></i> Usando Proxy ${numero} - Testando conexão...`;
+            
+            console.log(`🔄 Tentando Proxy ${numero}: ${PROXY_OPTIONS[numero]}`);
+            carregarAgendamentos();
+        }
 
         // Carregar agendamentos quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Sistema de Agendamento SENAI - Iniciado');
-            console.log('🔗 Conectando com:', API_URL);
+            console.log('🔗 URL Original:', URL_ORIGINAL);
+            console.log('🔗 URL com Proxy:', API_URL);
             
             // Configurar datas mínimas
             const agora = new Date();
@@ -481,22 +520,36 @@
             document.getElementById('inicio').min = dataMinima;
             document.getElementById('fim').min = dataMinima;
             
+            document.getElementById('proxy-status').innerHTML = 
+                `<i class="fas fa-sync-alt"></i> Usando Proxy 1 - Conectando...`;
+            
             carregarAgendamentos();
         });
 
         async function carregarAgendamentos() {
             const container = document.getElementById('agendamentos-container');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Conectando com o servidor...</p></div>';
             
             try {
-                console.log('📡 Buscando agendamentos...');
-                const response = await fetch(API_URL);
+                console.log('📡 Tentando conectar com:', API_URL);
+                
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
                 
                 if (!response.ok) {
-                    throw new Error(`Erro HTTP ${response.status}`);
+                    throw new Error(`Erro HTTP ${response.status} - ${response.statusText}`);
                 }
                 
                 const agendamentos = await response.json();
-                console.log(`✅ ${agendamentos.length} agendamentos carregados`);
+                console.log(`✅ SUCESSO! ${agendamentos.length} agendamentos carregados`);
+                
+                // Atualizar status do proxy
+                document.getElementById('proxy-status').innerHTML = 
+                    `<i class="fas fa-check-circle" style="color: #27ae60;"></i> Conexão estabelecida - ${agendamentos.length} agendamentos carregados`;
                 
                 // Atualizar estatísticas
                 atualizarEstatisticas(agendamentos);
@@ -565,18 +618,22 @@
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar:', error);
+                
+                document.getElementById('proxy-status').innerHTML = 
+                    `<i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Erro de conexão - Tente outro proxy`;
+                
                 container.innerHTML = `
                     <div class="empty-state fade-in">
                         <i class="fas fa-exclamation-triangle"></i>
                         <h3>Erro de Conexão</h3>
-                        <p>${error.message}</p>
+                        <p><strong>Detalhes:</strong> ${error.message}</p>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left;">
-                            <strong>Solução aplicada:</strong>
-                            <ul style="text-align: left; margin: 10px 0;">
-                                <li>✅ CORS Proxy ativado para GitHub Pages</li>
-                                <li>✅ Conexão com Google Apps Script</li>
-                                <li>✅ Sistema totalmente funcional</li>
-                            </ul>
+                            <strong>Solução:</strong>
+                            <ol style="text-align: left; margin: 10px 0;">
+                                <li>Clique em <strong>"Proxy 2"</strong> ou <strong>"Proxy 3"</strong> acima</li>
+                                <li>Isso usa um servidor diferente para conectar</li>
+                                <li>Um deles deve funcionar!</li>
+                            </ol>
                         </div>
                         <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
                             <i class="fas fa-sync-alt"></i> Tentar Novamente
