@@ -5,327 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Agendamento - SENAI</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; padding: 20px; 
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        .container { 
+            max-width: 1200px; margin: 0 auto; background: white; 
+            border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+            overflow: hidden; 
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+        header { 
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); 
+            color: white; padding: 30px; text-align: center; 
         }
-
-        header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
+        .main-content { padding: 30px; }
+        .form-section { 
+            background: #f8f9fa; padding: 25px; border-radius: 10px; 
+            margin-bottom: 30px; border-left: 5px solid #3498db; 
         }
-
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        .form-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; margin-bottom: 20px; 
         }
-
-        .main-content {
-            padding: 30px;
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; margin-bottom: 5px; color: #2c3e50; }
+        .form-group input, .form-group select { 
+            padding: 12px; border: 2px solid #e1e8ed; border-radius: 8px; 
+            font-size: 16px; transition: border-color 0.3s ease; 
         }
-
-        .form-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            border-left: 5px solid #3498db;
+        .form-group input:focus, .form-group select:focus { 
+            outline: none; border-color: #3498db; 
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); 
         }
-
-        .form-section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.5em;
+        .btn { 
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); 
+            color: white; border: none; padding: 15px 30px; border-radius: 8px; 
+            font-size: 16px; font-weight: 600; cursor: pointer; 
+            transition: all 0.3s ease; 
         }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        .btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3); 
         }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
+        .btn-success { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
+        .agendamentos-section { 
+            background: white; padding: 25px; border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); 
         }
-
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #2c3e50;
+        .agendamentos-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px; 
         }
-
-        .form-group input, .form-group select {
-            padding: 12px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
+        .agendamento-card { 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); 
+            border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; 
+            transition: all 0.3s ease; position: relative; 
         }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        .agendamento-card:hover { 
+            transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
         }
-
-        .btn {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .loading-spinner { 
+            border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
+            border-radius: 50%; width: 40px; height: 40px; 
+            animation: spin 1s linear infinite; margin: 0 auto 20px; 
         }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
         }
-
-        .btn-success {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        .api-status { 
+            padding: 10px; border-radius: 5px; margin: 10px 0; 
+            text-align: center; font-weight: 600; 
         }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        .api-online { 
+            background: #d4edda; color: #155724; border: 1px solid #c3e6cb; 
         }
-
-        .agendamentos-section {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-
-        .agendamentos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .agendamento-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 1px solid #e1e8ed;
-            border-radius: 10px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .agendamento-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .agendamento-card h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 1.3em;
-        }
-
-        .agendamento-info {
-            margin-bottom: 15px;
-        }
-
-        .agendamento-info p {
-            margin: 5px 0;
-            color: #555;
-        }
-
-        .agendamento-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-small {
-            padding: 8px 15px;
-            font-size: 14px;
-            flex: 1;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .status-indicator {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #2ecc71;
-        }
-
-        .status-occupied {
-            background: #e74c3c;
-        }
-
-        .status-warning {
-            background: #f39c12;
-        }
-
-        .api-status {
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .api-online {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .api-offline {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .demo-notice {
-            background: #fff3cd;
-            color: #856404;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            text-align: center;
-            border: 1px solid #ffeaa7;
-        }
-
-        .config-section {
-            background: #e8f4fd;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .config-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        .config-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .config-input input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .agendamentos-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            header h1 {
-                font-size: 2em;
-            }
-            
-            .main-content {
-                padding: 20px;
-            }
-            
-            .config-input {
-                flex-direction: column;
-            }
+        .api-offline { 
+            background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; 
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎓 Sistema de Agendamento</h1>
-            <p>Sistema de agendamento de salas - SENAI</p>
+            <h1>🎓 Sistema de Agendamento SENAI</h1>
+            <p>Conectado com Google Sheets</p>
         </header>
 
         <div class="main-content">
-            <!-- Status da API -->
             <div id="api-status" class="api-status" style="display: none;">
                 🔄 Conectando com Google Sheets...
-            </div>
-
-            <!-- Aviso de demonstração -->
-            <div class="demo-notice">
-                ⚠️ <strong>Modo de Demonstração</strong> - Os dados são armazenados localmente no navegador.
-                Para conectar com o Google Sheets, configure a URL do Google Apps Script abaixo.
-            </div>
-
-            <!-- Seção de configuração -->
-            <div class="config-section">
-                <h3>🔧 Configuração do Google Apps Script</h3>
-                <div class="config-input">
-                    <input type="text" id="script-url" placeholder="Cole aqui a URL do seu Google Apps Script">
-                    <button class="btn" onclick="salvarConfiguracao()">Salvar URL</button>
-                </div>
-                <p style="font-size: 0.9em; color: #666;">
-                    Para obter a URL: 
-                    <ol style="margin-left: 20px; font-size: 0.9em; color: #666;">
-                        <li>Abra seu Google Apps Script</li>
-                        <li>Clique em "Implantar" > "Nova implantação"</li>
-                        <li>Selecione "Aplicativo Web" e configure "Executar como: Eu" e "Quem tem acesso: Qualquer pessoa"</li>
-                        <li>Copie a URL fornecida e cole acima</li>
-                    </ol>
-                </p>
             </div>
 
             <section class="form-section">
@@ -338,9 +110,7 @@
                             <option value="Sala 1">Sala 1</option>
                             <option value="Sala 2">Sala 2</option>
                             <option value="Sala 3">Sala 3</option>
-                            <option value="Sala 4">Sala 4</option>
                             <option value="Laboratório 1">Laboratório 1</option>
-                            <option value="Laboratório 2">Laboratório 2</option>
                             <option value="Auditório">Auditório</option>
                         </select>
                     </div>
@@ -364,15 +134,12 @@
                 <button class="btn btn-success" onclick="adicionarAgendamento()">
                     💾 Salvar Agendamento
                 </button>
-                <button class="btn" onclick="alternarModo()" id="modo-btn" style="margin-left: 10px;">
-                    🔄 Alternar para Google Sheets
-                </button>
             </section>
 
             <section class="agendamentos-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>📋 Agendamentos</h2>
-                    <button class="btn btn-small" onclick="carregarAgendamentos()">
+                    <button class="btn" onclick="carregarAgendamentos()">
                         🔄 Atualizar
                     </button>
                 </div>
@@ -387,27 +154,19 @@
     </div>
 
     <script>
-        // Configurações
-        let usarGoogleSheets = false;
-        let API_URL = "";
-        const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1EMt_TECPbkYBtQM1_SVu2P-fa-Og9rynwoL2HdHSbAs/edit";
+        // ✅ SUA URL DA API (JÁ ATUALIZADA)
+        const API_URL = "https://script.google.com/macros/s/AKfycby1MaNb1jb4NeTqjVhltCXj_FmeCxlr4jF_Ci1gdWwdmCClbQfb3c7oNgHnxhBxUgK-1g/exec";
+        const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1B9z9c4WkS-LWs9cyW2sk8zkIwimXYr0DNRB573JT3xI/edit";
         
-        // Dados de exemplo (serão salvos no localStorage)
         let agendamentos = [];
 
-        // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Iniciando sistema...');
-            
-            // Carregar configurações salvas
-            carregarConfiguracao();
-            
-            // Configurar data mínima como hoje
+            // Configurar data como hoje
             const hoje = new Date().toISOString().split('T')[0];
             document.getElementById('data').min = hoje;
             document.getElementById('data').value = hoje;
             
-            // Configurar horários padrão
+            // Horários padrão
             const agora = new Date();
             const inicioPadrao = new Date(agora.getTime() + 60 * 60 * 1000);
             const fimPadrao = new Date(inicioPadrao.getTime() + 2 * 60 * 60 * 1000);
@@ -415,56 +174,9 @@
             document.getElementById('horaInicio').value = inicioPadrao.toTimeString().slice(0, 5);
             document.getElementById('horaFim').value = fimPadrao.toTimeString().slice(0, 5);
             
-            // Carregar dados iniciais
             carregarAgendamentos();
         });
 
-        // Funções de configuração
-        function carregarConfiguracao() {
-            const urlSalva = localStorage.getItem('googleScriptURL');
-            if (urlSalva) {
-                document.getElementById('script-url').value = urlSalva;
-                API_URL = urlSalva;
-            }
-            
-            const modoSalvo = localStorage.getItem('usarGoogleSheets');
-            usarGoogleSheets = modoSalvo === 'true';
-            atualizarBotaoModo();
-        }
-
-        function salvarConfiguracao() {
-            const url = document.getElementById('script-url').value.trim();
-            if (url) {
-                API_URL = url;
-                localStorage.setItem('googleScriptURL', url);
-                alert('✅ URL salva com sucesso!');
-                
-                // Testar a conexão
-                testarConexao();
-            } else {
-                alert('❌ Por favor, insira uma URL válida.');
-            }
-        }
-
-        function alternarModo() {
-            usarGoogleSheets = !usarGoogleSheets;
-            localStorage.setItem('usarGoogleSheets', usarGoogleSheets.toString());
-            atualizarBotaoModo();
-            carregarAgendamentos();
-        }
-
-        function atualizarBotaoModo() {
-            const botao = document.getElementById('modo-btn');
-            if (usarGoogleSheets) {
-                botao.textContent = '🔄 Alternar para Modo Local';
-                botao.className = 'btn btn-danger';
-            } else {
-                botao.textContent = '🔄 Alternar para Google Sheets';
-                botao.className = 'btn';
-            }
-        }
-
-        // Funções principais
         async function carregarAgendamentos() {
             const container = document.getElementById('agendamentos-container');
             const statusDiv = document.getElementById('api-status');
@@ -472,180 +184,42 @@
             container.innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    <p>Carregando agendamentos...</p>
+                    <p>Carregando agendamentos do Google Sheets...</p>
                 </div>
             `;
             
-            if (usarGoogleSheets && API_URL) {
-                // Modo Google Sheets
-                try {
-                    console.log('📡 Conectando com Google Sheets...');
-                    statusDiv.style.display = 'block';
-                    statusDiv.className = 'api-status api-online';
-                    statusDiv.innerHTML = '🔄 Conectando com Google Sheets...';
-                    
-                    const response = await fetch(API_URL);
-                    
-                    if (!response.ok) {
-                        throw new Error(`Erro HTTP: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    agendamentos = Array.isArray(data) ? data : [];
-                    console.log(`✅ ${agendamentos.length} agendamentos carregados do Google Sheets`);
-                    
-                    statusDiv.className = 'api-status api-online';
-                    statusDiv.innerHTML = `✅ Conectado - ${agendamentos.length} agendamentos carregados`;
-                    
-                    exibirAgendamentos(agendamentos);
-                    
-                } catch (error) {
-                    console.error('❌ Erro ao carregar do Google Sheets:', error);
-                    statusDiv.className = 'api-status api-offline';
-                    statusDiv.innerHTML = '❌ Erro de conexão com Google Sheets';
-                    
-                    // Voltar para modo local em caso de erro
-                    usarGoogleSheets = false;
-                    atualizarBotaoModo();
-                    
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div style="font-size: 3em; margin-bottom: 20px;">❌</div>
-                            <h3>Erro de Conexão</h3>
-                            <p>Não foi possível conectar com o Google Sheets.</p>
-                            <p><em>${error.message}</em></p>
-                            <p>Alternando para modo local...</p>
-                            <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
-                                🔄 Tentar Novamente
-                            </button>
-                        </div>
-                    `;
-                    
-                    // Carregar dados locais após um breve delay
-                    setTimeout(() => {
-                        carregarDadosLocais();
-                        exibirAgendamentos(agendamentos);
-                    }, 2000);
-                }
-            } else {
-                // Modo local
-                statusDiv.style.display = 'none';
-                carregarDadosLocais();
+            try {
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'api-status api-online';
+                statusDiv.innerHTML = '🔄 Conectando com Google Sheets...';
+                
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                
+                const data = await response.json();
+                agendamentos = Array.isArray(data) ? data : [];
+                
+                statusDiv.className = 'api-status api-online';
+                statusDiv.innerHTML = `✅ Conectado - ${agendamentos.length} agendamentos`;
+                
                 exibirAgendamentos(agendamentos);
+                
+            } catch (error) {
+                statusDiv.className = 'api-status api-offline';
+                statusDiv.innerHTML = '❌ Erro de conexão';
+                
+                container.innerHTML = `
+                    <div class="loading">
+                        <div style="font-size: 3em; margin-bottom: 20px;">❌</div>
+                        <h3>Erro de Conexão</h3>
+                        <p>Verifique se a URL da API está correta</p>
+                        <button class="btn" onclick="carregarAgendamentos()" style="margin-top: 20px;">
+                            🔄 Tentar Novamente
+                        </button>
+                    </div>
+                `;
             }
-        }
-
-        function carregarDadosLocais() {
-            const dadosSalvos = localStorage.getItem('agendamentosLocais');
-            if (dadosSalvos) {
-                agendamentos = JSON.parse(dadosSalvos);
-                console.log(`📁 ${agendamentos.length} agendamentos carregados do armazenamento local`);
-            } else {
-                // Dados de exemplo iniciais
-                agendamentos = [
-                    {
-                        id: 1,
-                        sala: "Sala 1",
-                        professor: "Prof. Silva",
-                        inicio: "2023-11-15T09:00",
-                        fim: "2023-11-15T11:00"
-                    },
-                    {
-                        id: 2,
-                        sala: "Laboratório 1",
-                        professor: "Prof. Oliveira",
-                        inicio: "2023-11-15T14:00",
-                        fim: "2023-11-15T16:00"
-                    }
-                ];
-                salvarDadosLocais();
-                console.log("📁 Dados de exemplo criados e salvos localmente");
-            }
-        }
-
-        function salvarDadosLocais() {
-            localStorage.setItem('agendamentosLocais', JSON.stringify(agendamentos));
-        }
-
-        async function adicionarAgendamento() {
-            const sala = document.getElementById('sala').value;
-            const professor = document.getElementById('professor').value;
-            const data = document.getElementById('data').value;
-            const horaInicio = document.getElementById('horaInicio').value;
-            const horaFim = document.getElementById('horaFim').value;
-
-            // Validações
-            if (!sala || !professor || !data || !horaInicio || !horaFim) {
-                alert('❌ Por favor, preencha todos os campos!');
-                return;
-            }
-
-            if (horaInicio >= horaFim) {
-                alert('❌ A hora de término deve ser posterior à hora de início!');
-                return;
-            }
-
-            // Combinar data e hora
-            const inicioISO = `${data}T${horaInicio}`;
-            const fimISO = `${data}T${horaFim}`;
-
-            const novoAgendamento = {
-                id: Date.now(), // ID único baseado no timestamp
-                sala: sala,
-                professor: professor,
-                inicio: inicioISO,
-                fim: fimISO
-            };
-
-            const statusDiv = document.getElementById('api-status');
-            
-            if (usarGoogleSheets && API_URL) {
-                // Salvar no Google Sheets
-                try {
-                    statusDiv.style.display = 'block';
-                    statusDiv.className = 'api-status api-online';
-                    statusDiv.innerHTML = '💾 Salvando na planilha...';
-
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(novoAgendamento)
-                    });
-
-                    const resultado = await response.json();
-                    
-                    if (resultado.status === "sucesso") {
-                        statusDiv.innerHTML = '✅ Agendamento salvo na planilha!';
-                        alert('✅ Agendamento salvo com sucesso!');
-                        
-                        // Recarregar lista
-                        setTimeout(() => {
-                            carregarAgendamentos();
-                        }, 2000);
-                        
-                    } else {
-                        throw new Error(resultado.error || 'Erro desconhecido');
-                    }
-                    
-                } catch (error) {
-                    console.error('Erro ao salvar no Google Sheets:', error);
-                    statusDiv.className = 'api-status api-offline';
-                    statusDiv.innerHTML = '❌ Erro ao salvar na planilha';
-                    alert('❌ Erro ao salvar: ' + error.message);
-                }
-            } else {
-                // Salvar localmente
-                agendamentos.push(novoAgendamento);
-                salvarDadosLocais();
-                alert('✅ Agendamento salvo localmente!');
-                exibirAgendamentos(agendamentos);
-            }
-            
-            // Limpar formulário
-            document.getElementById('sala').value = '';
-            document.getElementById('professor').value = '';
         }
 
         function exibirAgendamentos(agendamentos) {
@@ -653,52 +227,28 @@
             
             if (!agendamentos || agendamentos.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-state">
+                    <div class="loading">
                         <div style="font-size: 3em; margin-bottom: 20px;">📭</div>
                         <h3>Nenhum agendamento</h3>
-                        <p>${usarGoogleSheets ? 'A planilha está vazia.' : 'Nenhum agendamento local.'} Adicione o primeiro agendamento!</p>
+                        <p>Adicione o primeiro agendamento!</p>
                     </div>
                 `;
                 return;
             }
-
-            // Ordenar por data mais recente primeiro
-            agendamentos.sort((a, b) => new Date(b.inicio) - new Date(a.inicio));
 
             let html = '<div class="agendamentos-grid">';
             
             agendamentos.forEach(ag => {
                 const inicio = formatarData(ag.inicio);
                 const fim = formatarData(ag.fim);
-                const agora = new Date();
-                const dataInicio = new Date(ag.inicio);
-                const dataFim = new Date(ag.fim);
-                
-                let status = 'disponivel';
-                let statusText = '🟢 Disponível';
-                
-                if (dataInicio <= agora && dataFim >= agora) {
-                    status = 'ocupado';
-                    statusText = '🔴 Em andamento';
-                } else if (dataFim < agora) {
-                    status = 'concluido';
-                    statusText = '⚫ Concluído';
-                }
                 
                 html += `
                     <div class="agendamento-card">
-                        <div class="status-indicator ${status === 'ocupado' ? 'status-occupied' : status === 'concluido' ? 'status-warning' : ''}"></div>
-                        <h3>${ag.sala || 'Sala não informada'}</h3>
-                        <div class="agendamento-info">
-                            <p><strong>Professor:</strong> ${ag.professor || 'Não informado'}</p>
+                        <h3>${ag.sala}</h3>
+                        <div style="margin-bottom: 15px;">
+                            <p><strong>Professor:</strong> ${ag.professor}</p>
                             <p><strong>Início:</strong> ${inicio}</p>
                             <p><strong>Término:</strong> ${fim}</p>
-                            <p><strong>Status:</strong> ${statusText}</p>
-                        </div>
-                        <div class="agendamento-actions">
-                            <button class="btn btn-small btn-danger" onclick="excluirAgendamento(${ag.id})">
-                                🗑️ Excluir
-                            </button>
                         </div>
                     </div>
                 `;
@@ -708,44 +258,63 @@
             container.innerHTML = html;
         }
 
-        function excluirAgendamento(id) {
-            if (confirm('Tem certeza que deseja excluir este agendamento?')) {
-                if (usarGoogleSheets) {
-                    alert('Para excluir agendamentos do Google Sheets, abra a planilha diretamente.');
-                    window.open(PLANILHA_URL, '_blank');
-                } else {
-                    agendamentos = agendamentos.filter(ag => ag.id !== id);
-                    salvarDadosLocais();
-                    exibirAgendamentos(agendamentos);
-                    alert('Agendamento excluído com sucesso!');
-                }
-            }
-        }
+        async function adicionarAgendamento() {
+            const sala = document.getElementById('sala').value;
+            const professor = document.getElementById('professor').value;
+            const data = document.getElementById('data').value;
+            const horaInicio = document.getElementById('horaInicio').value;
+            const horaFim = document.getElementById('horaFim').value;
 
-        async function testarConexao() {
-            const statusDiv = document.getElementById('api-status');
-            if (!API_URL) {
-                alert('Por favor, configure a URL do Google Apps Script primeiro.');
+            if (!sala || !professor || !data || !horaInicio || !horaFim) {
+                alert('❌ Preencha todos os campos!');
                 return;
             }
-            
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'api-status api-online';
-            statusDiv.innerHTML = '🧪 Testando conexão...';
+
+            if (horaInicio >= horaFim) {
+                alert('❌ Hora de término deve ser posterior ao início!');
+                return;
+            }
+
+            const inicioISO = `${data}T${horaInicio}`;
+            const fimISO = `${data}T${horaFim}`;
+
+            const novoAgendamento = {
+                sala: sala,
+                professor: professor,
+                inicio: inicioISO,
+                fim: fimISO
+            };
+
+            const statusDiv = document.getElementById('api-status');
             
             try {
-                const response = await fetch(API_URL);
-                if (response.ok) {
-                    statusDiv.innerHTML = '✅ Conexão bem-sucedida com Google Sheets!';
-                    setTimeout(() => {
-                        statusDiv.style.display = 'none';
-                    }, 3000);
-                } else {
-                    throw new Error(`Erro HTTP: ${response.status}`);
-                }
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'api-status api-online';
+                statusDiv.innerHTML = '💾 Salvando...';
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(novoAgendamento)
+                });
+
+                const resultado = await response.json();
+                
+                if (resultado.status === "sucesso") {
+                    statusDiv.innerHTML = '✅ Agendamento salvo!';
+                    alert('✅ Agendamento salvo com sucesso!');
+                    
+                    document.getElementById('sala').value = '';
+                    document.getElementById('professor').value = '';
+                    
+                    setTimeout(() => carregarAgendamentos(), 2000);
+                    
+                } else throw new Error(resultado.error);
+                
             } catch (error) {
                 statusDiv.className = 'api-status api-offline';
-                statusDiv.innerHTML = '❌ Falha na conexão: ' + error.message;
+                statusDiv.innerHTML = '❌ Erro ao salvar';
+                alert('❌ Erro: ' + error.message);
             }
         }
 
@@ -753,11 +322,8 @@
             try {
                 const data = new Date(dataString);
                 return data.toLocaleString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
                 });
             } catch (e) {
                 return dataString;
